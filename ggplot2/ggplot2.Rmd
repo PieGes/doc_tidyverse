@@ -1,0 +1,250 @@
+---
+title: "ggplot2"
+author: "Pierre Gestraud"
+date: "4 octobre 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(cache = TRUE)
+require(ggplot2)
+```
+
+
+### Example data
+
+```{r}
+head(msleep)
+```
+
+Create additionnal variable
+
+```{r}
+msleep$continent <- rep(c("Europe", "Africa", "Asia"), length.out = nrow(msleep))
+```
+
+
+### First plot
+
+```{r}
+qplot(sleep_total, sleep_rem, data = msleep)
+```
+
+```{r}
+qplot(sleep_total, sleep_rem, color = vore, data = msleep)
+```
+
+```{r}
+qplot(sleep_total, sleep_rem, size = bodywt, data = msleep)
+```
+
+### Advanced control 
+
+main function: `ggplot` 
+
+### Grammar of graphics
+
+plot = data + geom + coordinate system
+
+### Layer
+
+a layer is composed of 
+
+- data and aesthetic mapping,
+- a statistical transformation,
+- a geometric object
+- and a position adjustement
+
+### 
+
+```{r}
+ggplot(msleep,  ## data
+       aes(x = sleep_total, y = sleep_rem)) + ## aesthetics
+        geom_point() + ## layer
+        ggtitle("REM vs total") ## additionnal elements
+    ```
+
+### a plot is an R object
+
+```{r}
+g <- ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() 
+g ## or print(g)
+g + ggtitle("cycle vs total")
+```
+
+
+### geom
+
+* one variable
+    + continous
+        - `geom_density`
+        - `geom_histogram`
+        - `geom_freqpoly`
+    + discrete
+        - `geom_bar`
+* two variables
+    + continous X, continuous Y
+        - `geom_point`
+        - `geom_smooth`
+        - `geom_text`
+    + discrete X, continuous Y
+        - `geom_bar`
+        - `geom_boxplot`
+        - `geom_violin`
+    + bivariate distribution
+        - `geom_density2d`
+        - `geom_hex`
+        - `geom_bin2d`
+    + continuous function
+        - `geom_line`
+        - `geom_step`
+* three variables
+    +
+        - `geom_contour`
+        - `geom_tile`
+
+```{r}
+ggplot(msleep, aes(x = vore, y = sleep_total)) + geom_boxplot()
+ggplot(msleep, aes(x = vore)) + geom_bar()
+```
+
+
+### aesthetics
+
+- `x`
+- `y`
+- `z` 
+- `color`
+- `fill`
+- `size`
+- `text`
+
+```{r}
+ggplot(msleep, aes(x = vore, y = sleep_rem, fill = vore)) + geom_boxplot()
+ggplot(msleep, aes(x = vore, y = sleep_rem, color = vore)) + geom_boxplot()
+ggplot(msleep, aes(x = vore, y = sleep_rem, fill = continent)) + geom_boxplot()
+```
+
+
+### add a smoother on the plot
+Default smoother (loess if <1000 obs, gam otherwise)
+```{r}
+ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + geom_smooth()
+```
+
+Linear model
+```{r}
+ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + geom_smooth(method = "lm")
+```
+
+Remove SE
+```{r}
+ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+### Scales
+
+- `xlim`/`ylim` vs `coord_cartesian`
+
+```{r}
+ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + xlim(c(7.5, 17))
+ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + coord_cartesian(xlim = c(7.5, 17))
+
+ggplot(msleep, aes(x = sleep_total)) + geom_density(fill = "gray") 
+ggplot(msleep, aes(x = sleep_total)) + geom_density(fill = "gray") + xlim(c(7.5, 17))
+ggplot(msleep, aes(x = sleep_total)) + geom_density(fill = "gray") + coord_cartesian(xlim = c(7.5, 17))
+```
+
+
+
+- axis transformation
+- order
+- color scales
+
+### Themes
+
+- default themes
+- customize theme
+
+### Faceting
+
+Two functions for facetting:
+- `facet_wrap`
+- `facet_grid`
+
+```{r}
+ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point() + facet_wrap(~ vore)
+ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point() + facet_grid(continent ~ vore)
+```
+
+Controling facet_wrap organisation
+
+```{r}
+ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point() + facet_wrap(~ vore, nrow = 1)
+```
+
+All layers are faceted
+```{r}
+ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point() + facet_wrap(~ vore) + geom_smooth(se = FALSE, method = "lm")
+```
+
+
+- scales free
+- labels
+
+### add supplementary data
+
+### Programming with ggplot2
+
+`ggplot2` use non standard evaluation (NSE). How to use variables in `aes`? `aes_string` allows standard evaluation.
+
+```{r}
+var_x <- "sleep_total"
+var_y <- "sleep_rem"
+ggplot(msleep, aes(x = var_x, y = var_y)) + geom_point()
+ggplot(msleep, aes_string(x = var_x, y = var_y)) + geom_point()
+```
+
+
+### Plot heatmap with ggplot2
+
+```{r}
+ggplot(msleep, aes(x = continent, y = vore, fill = sleep_total)) + geom_tile()
+```
+
+```{r}
+d <- as.data.frame(matrix(rnorm(100), ncol = 10))
+colnames(d) <- paste0("s", 1:10)
+d$gene <- paste0("g", 1:10)
+require(tidyr)
+dm <- gather(d, key = "sample", value = "exp", -gene) ## convert data to long format
+ggplot(dm, aes(x = sample, y = gene, fill = exp)) + geom_tile()
+```
+
+
+### Interactivity
+
+```{r}
+require(plotly)
+g <- ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point()
+ggplotly(g)
+g <- ggplot(msleep, aes(x = sleep_total, y = sleep_rem, color = vore, text = name)) + geom_point()
+ggplotly(g)
+```
+
+
+### Extensions
+
+- `ggrepel`: smart geom_text and geom_label placement
+- `cowplot`: several plots on one page
+- `ggraph`: visualise graph
+- `ggmap`: plot data on a map
+- `factoextra`: visualise results of factorial analysis (PCA, CA, MCA, MFA, ...)
+- `ggbio`: visualise genomic data
+- `ggdendro`: visualise dendrograms and trees
+
+### Ressources
+
+- http://docs.ggplot2.org
+- rstudio cheatsheet http://www.rstudio.com/wp-content/uploads/2015/04/ggplot2-cheatsheet.pdf
