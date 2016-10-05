@@ -2,7 +2,9 @@
 title: "ggplot2"
 author: "Pierre Gestraud"
 date: "4 octobre 2016"
-output: html_document
+output: 
+  html_document: 
+    self_contained: no
 ---
 
 ```{r setup, include=FALSE}
@@ -141,6 +143,12 @@ ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + geom_smoo
 Remove SE
 ```{r}
 ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+### Order matters
+```{r}
+ggplot(msleep, aes(x = vore, y = sleep_total)) + geom_point() + geom_boxplot()
+ggplot(msleep, aes(x = vore, y = sleep_total)) + geom_boxplot() + geom_point()
 ```
 
 ### Scales
