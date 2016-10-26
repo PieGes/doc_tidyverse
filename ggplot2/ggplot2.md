@@ -9,102 +9,146 @@ Pierre Gestraud
 
 
 ```r
-head(msleep)
+head(mpg)
 ```
 
 ```
-##                         name      genus  vore        order conservation
-## 1                    Cheetah   Acinonyx carni    Carnivora           lc
-## 2                 Owl monkey      Aotus  omni     Primates         <NA>
-## 3            Mountain beaver Aplodontia herbi     Rodentia           nt
-## 4 Greater short-tailed shrew    Blarina  omni Soricomorpha           lc
-## 5                        Cow        Bos herbi Artiodactyla domesticated
-## 6           Three-toed sloth   Bradypus herbi       Pilosa         <NA>
-##   sleep_total sleep_rem sleep_cycle awake brainwt  bodywt
-## 1        12.1        NA          NA  11.9      NA  50.000
-## 2        17.0       1.8          NA   7.0 0.01550   0.480
-## 3        14.4       2.4          NA   9.6      NA   1.350
-## 4        14.9       2.3   0.1333333   9.1 0.00029   0.019
-## 5         4.0       0.7   0.6666667  20.0 0.42300 600.000
-## 6        14.4       2.2   0.7666667   9.6      NA   3.850
+##   manufacturer model displ year cyl      trans drv cty hwy fl   class
+## 1         audi    a4   1.8 1999   4   auto(l5)   f  18  29  p compact
+## 2         audi    a4   1.8 1999   4 manual(m5)   f  21  29  p compact
+## 3         audi    a4   2.0 2008   4 manual(m6)   f  20  31  p compact
+## 4         audi    a4   2.0 2008   4   auto(av)   f  21  30  p compact
+## 5         audi    a4   2.8 1999   6   auto(l5)   f  16  26  p compact
+## 6         audi    a4   2.8 1999   6 manual(m5)   f  18  26  p compact
 ```
 
-Create additionnal variable
+### Quickstart
+
 
 
 ```r
-msleep$continent <- rep(c("Europe", "Africa", "Asia"), length.out = nrow(msleep))
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point()
 ```
 
+![](ggplot2_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
 
-### First plot
+A plot has 3 main components:
+
+- data
+- a set of aesthetics
+- a set of layers (mainly geometries)
 
 
 ```r
-qplot(sleep_total, sleep_rem, data = msleep)
+ggplot(mpg,   ## data
+       aes(x = displ, y = hwy)) +  ## aesthetics
+    geom_point() ## layer
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
+### aesthetics
+
+- `x`
+- `y`
+- `z` 
+- `color`
+- `fill`
+- `size`
+- `text`
+
+Set color aesthetic to `manufacturer variable`
+
 
 ```r
-qplot(sleep_total, sleep_rem, color = vore, data = msleep)
+ggplot(mpg, aes(x = displ, y = hwy, color = manufacturer)) + geom_point()
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
+Set size aesthetic
+
 
 ```r
-qplot(sleep_total, sleep_rem, size = bodywt, data = msleep)
+ggplot(mpg, aes(x = displ, y = hwy, size = cyl)) + geom_point()
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
-### Advanced control 
-
-main function: `ggplot` 
-
-### Grammar of graphics
-
-plot = data + geom + coordinate system
-
-### Layer
-
-a layer is composed of 
-
-- data and aesthetic mapping,
-- a statistical transformation,
-- a geometric object
-- and a position adjustement
-
-### 
+Alpha aesthetic
 
 
 ```r
-ggplot(msleep,  ## data
-       aes(x = sleep_total, y = sleep_rem)) + ## aesthetics
-        geom_point() + ## layer
-        ggtitle("REM vs total") ## additionnal elements
+ggplot(mpg, aes(x = displ, y = hwy, size = cyl, color = class)) + geom_point(alpha = 0.5)
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
-### a plot is an R object
+Set an aesthetic to a fixed value
 
 
 ```r
-g <- ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() 
-g ## or print(g)
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point(aes(color = "blue"))
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 ```r
-g + ggtitle("cycle vs total")
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point(color = "blue")
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-7-2.png)<!-- -->
 
+Set an aestetic to a discrete numeric value
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy, color = cyl)) + geom_point() ## gradient scale
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy, color = factor(cyl))) + geom_point() ## discrete scale
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-8-2.png)<!-- -->
+
+Aesthetics can be defined inside geom
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point(aes(color = class))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+Aesthetics defined inside `ggplot` apply to all geom
+
+
+```r
+ggplot(mpg, aes(x = class, y = hwy, color = class)) + geom_boxplot() + geom_point()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+
+### a ggplot is an object
+
+We can build a `ggplot` object in several steps
+
+
+```r
+g <- ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() 
+g ## or print(g)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
+```r
+g <- g + ggtitle("hwy vs displ")
+g
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-11-2.png)<!-- -->
 
 ### geom
 
@@ -130,142 +174,455 @@ g + ggtitle("cycle vs total")
         - `geom_bin2d`
     + continuous function
         - `geom_line`
-        - `geom_step`
+        - `geom_step` 
 * three variables
     +
         - `geom_contour`
         - `geom_tile`
 
 
-```r
-ggplot(msleep, aes(x = vore, y = sleep_total)) + geom_boxplot()
-```
+#### data distributions
 
-![](ggplot2_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
-
-```r
-ggplot(msleep, aes(x = vore)) + geom_bar()
-```
-
-![](ggplot2_files/figure-html/unnamed-chunk-8-2.png)<!-- -->
-
-
-### aesthetics
-
-- `x`
-- `y`
-- `z` 
-- `color`
-- `fill`
-- `size`
-- `text`
+For histograms and densities only `x` is mandatory
 
 
 ```r
-ggplot(msleep, aes(x = vore, y = sleep_rem, fill = vore)) + geom_boxplot()
-```
-
-![](ggplot2_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
-
-```r
-ggplot(msleep, aes(x = vore, y = sleep_rem, color = vore)) + geom_boxplot()
-```
-
-![](ggplot2_files/figure-html/unnamed-chunk-9-2.png)<!-- -->
-
-```r
-ggplot(msleep, aes(x = vore, y = sleep_rem, fill = continent)) + geom_boxplot()
-```
-
-![](ggplot2_files/figure-html/unnamed-chunk-9-3.png)<!-- -->
-
-
-### add a smoother on the plot
-Default smoother (loess if <1000 obs, gam otherwise)
-
-```r
-ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + geom_smooth()
-```
-
-![](ggplot2_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
-
-Linear model
-
-```r
-ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + geom_smooth(method = "lm")
-```
-
-![](ggplot2_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
-
-Remove SE
-
-```r
-ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+ggplot(mpg, aes(x = hwy)) + geom_histogram()
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
-### Order matters
+```r
+ggplot(mpg, aes(x = hwy)) + geom_density()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-12-2.png)<!-- -->
 
 ```r
-ggplot(msleep, aes(x = vore, y = sleep_total)) + geom_point() + geom_boxplot()
+ggplot(mpg, aes(x = hwy)) + geom_freqpoly()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-12-3.png)<!-- -->
+
+Changing bins
+
+
+```r
+ggplot(mpg, aes(x = hwy)) + geom_histogram(bins = 30)
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 ```r
-ggplot(msleep, aes(x = vore, y = sleep_total)) + geom_boxplot() + geom_point()
+ggplot(mpg, aes(x = hwy)) + geom_histogram(binwidth = 2)
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-13-2.png)<!-- -->
 
-### Scales
-
-- `xlim`/`ylim` vs `coord_cartesian`
+Manually setting breaks
 
 
 ```r
-ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + xlim(c(7.5, 17))
+ggplot(mpg, aes(x = hwy)) + geom_histogram(breaks = c(10, 15, 20, 25, 30, 40, 50))
 ```
 
 ![](ggplot2_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
-```r
-ggplot(msleep, aes(x = sleep_total, y = sleep_cycle)) + geom_point() + coord_cartesian(xlim = c(7.5, 17))
-```
+Add fill or color
 
-![](ggplot2_files/figure-html/unnamed-chunk-14-2.png)<!-- -->
 
 ```r
-ggplot(msleep, aes(x = sleep_total)) + geom_density(fill = "gray") 
+ggplot(mpg, aes(x = hwy)) + geom_density(fill = "blue", color = "red")
 ```
 
-![](ggplot2_files/figure-html/unnamed-chunk-14-3.png)<!-- -->
+![](ggplot2_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 ```r
-ggplot(msleep, aes(x = sleep_total)) + geom_density(fill = "gray") + xlim(c(7.5, 17))
+ggplot(mpg, aes(x = hwy)) + geom_density(aes(fill = class))
 ```
 
-![](ggplot2_files/figure-html/unnamed-chunk-14-4.png)<!-- -->
+![](ggplot2_files/figure-html/unnamed-chunk-15-2.png)<!-- -->
+
+
+#### Boxplots, violins, jitter
+
+boxplots need `x` and `y` aestetics
+
 
 ```r
-ggplot(msleep, aes(x = sleep_total)) + geom_density(fill = "gray") + coord_cartesian(xlim = c(7.5, 17))
+ggplot(mpg, aes(x = class, y = hwy)) + geom_boxplot()
 ```
 
-![](ggplot2_files/figure-html/unnamed-chunk-14-5.png)<!-- -->
+![](ggplot2_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = class, y = hwy, fill = class)) + geom_boxplot()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-16-2.png)<!-- -->
+
+Add another variable as fill or color will separate boxplots
 
 
+```r
+ggplot(mpg, aes(x = class, y = hwy, fill = trans)) + geom_boxplot()
+```
 
-- axis transformation
-- order
-- color scales
+![](ggplot2_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+
+Violin plots
+
+
+```r
+ggplot(mpg, aes(x = class, y = hwy)) + geom_violin()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+
+Jitters
+
+
+```r
+ggplot(mpg, aes(x = class, y = hwy)) + geom_jitter()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+
+```r
+## control width and height of jitter
+ggplot(mpg, aes(x = class, y = hwy)) + geom_jitter(width = 0.5, height = 0)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-19-2.png)<!-- -->
+
+
+```r
+ggplot(mpg, aes(x = class, y = hwy)) + geom_boxplot() + geom_jitter(width = 0.5, height = 0)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
+
+#### Bars
+
+
+```r
+ggplot(mpg, aes(x = manufacturer)) + geom_bar()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+
+Adding color
+
+
+```r
+ggplot(mpg, aes(x = manufacturer, fill = class)) + geom_bar()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
+
+Changing bars positions
+
+
+```r
+ggplot(mpg, aes(x = manufacturer, fill = class)) + geom_bar(position = "stack")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = manufacturer, fill = class)) + geom_bar(position = "dodge")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-23-2.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = manufacturer, fill = class)) + geom_bar(position = "fill")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-23-3.png)<!-- -->
+
+Bar plot from count data
+
+
+```r
+d <- data.frame(group = c("a", "b", "c"), n = c(10, 25 , 14))
+```
+
+
+```r
+## error
+## ggplot(d, aes(x = group, y = n)) + geom_bar()
+ggplot(d, aes(x = group, y = n)) + geom_bar(stat = "identity")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-25-1.png)<!-- -->
+
+
+### add a smoother on the plot
+Default smoother (loess if <1000 obs, gam otherwise)
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_smooth()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
+
+Linear model
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_smooth(method = "lm")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-27-1.png)<!-- -->
+
+Remove SE
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-28-1.png)<!-- -->
+
+Smooth by group
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy, color = class)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-29-1.png)<!-- -->
+
+
+### Order of layers in object construction
+
+Order of layers matters
+
+
+```r
+ggplot(mpg, aes(x = class, y = hwy)) + geom_jitter(width = 0.5, height = 0) + geom_boxplot() 
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-30-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = class, y = hwy)) + geom_boxplot() + geom_jitter(width = 0.5, height = 0) 
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-30-2.png)<!-- -->
+
+
+### Scales
+
+Scales are mainly controlled by `scale_*` functions. Their names are structured: *scale_'aestetic name'_'type'*
+
+* `scale_color_discrete`: discrete scale for color aestetic
+* `scale_fill_gradient`: continuous scale for fill aestetic
+
+
+#### Discrete scales
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy, color = class)) + geom_point() + scale_color_discrete(h = c(50, 150))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-31-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy, color = class)) + geom_point() + scale_color_brewer(palette = "Set3")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-31-2.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy, color = factor(cyl))) + geom_point() + scale_color_manual(values = c("blue", "black", "red", "pink"))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-31-3.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy, color = factor(cyl))) + geom_point() + scale_color_manual(values = c('8' = "blue", '6' = "black", '4' = "red", '5' = "pink"))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-31-4.png)<!-- -->
+
+#### gradient scales
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy, color = hwy)) + geom_point()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-32-1.png)<!-- -->
+
+```r
+## 2 colors gradient
+ggplot(mpg, aes(x = displ, y = hwy, color = hwy)) + geom_point() + scale_color_gradient(low = "green", high = "red")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-32-2.png)<!-- -->
+
+```r
+## diverging color gradient, define low, mid and high colors
+ggplot(mpg, aes(x = displ, y = hwy, color = hwy)) + geom_point() + scale_color_gradient2(low = "green", high = "red", mid = "black", midpoint = 25)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-32-3.png)<!-- -->
+
+```r
+## n colors gradient
+ggplot(mpg, aes(x = displ, y = hwy, color = hwy)) + geom_point() + scale_color_gradientn(colours = terrain.colors(10))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-32-4.png)<!-- -->
+
+
+#### `xlim`/`ylim` vs `coord_cartesian`
+
+* `xlim`/`ylim` select data inside the range
+* coord_cartesian zoom in the plot
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-33-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + xlim(c(2, 6))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-33-2.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + coord_cartesian(xlim = c(2, 6))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-33-3.png)<!-- -->
+
+Warning: when computing densities or smoothers, the plot will completely change by using `xlim`/`ylim`
+
+
+```r
+ggplot(mpg, aes(x = displ)) + geom_density(fill = "gray50")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-34-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ)) + geom_density(fill = "gray50") + xlim(c(2, 3))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-34-2.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ)) + geom_density(fill = "gray50") + coord_cartesian(xlim = c(2, 3))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-34-3.png)<!-- -->
+
+#### axis transformation
+
+* flip axes
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + coord_flip()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-35-1.png)<!-- -->
+
+* polar coordinates
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + coord_polar()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-36-1.png)<!-- -->
+
+* reverse axis
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + scale_x_reverse()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-37-1.png)<!-- -->
+
+* log axis
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + scale_x_log10()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-38-1.png)<!-- -->
+
+* order of discrete scales
+
+
+```r
+ggplot(mpg, aes(x = fl)) + geom_bar()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-39-1.png)<!-- -->
+
+```r
+## change levels order 
+mpg$fl2 <- factor(mpg$fl, levels = c("e", "p", "d", "r", "c"))
+ggplot(mpg, aes(x = fl2)) + geom_bar()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-39-2.png)<!-- -->
+
+```r
+## or use xlim
+ggplot(mpg, aes(x = fl)) + geom_bar() + xlim(c("e", "p", "d", "r", "c"))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-39-3.png)<!-- -->
+
 
 ### Themes
 
-- default themes
-- customize theme
+Themes allow to have a set of graphics with the same style. Some are predefined `theme_default, theme_bw, them_minimal, theme_gray...`
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + theme_bw()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-40-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + theme_minimal()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-40-2.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + theme_dark()
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-40-3.png)<!-- -->
+
+We can customize some elements in themes (see http://docs.ggplot2.org/dev/vignettes/themes.html for details)
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + theme(panel.background = element_rect(fill = "wheat"), axis.text = element_text(size = 20))
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-41-1.png)<!-- -->
 
 ### Faceting
+
+Facetting allows to display plot separately according to discrete variables
 
 Two functions for facetting:
 - `facet_wrap`
@@ -273,39 +630,100 @@ Two functions for facetting:
 
 
 ```r
-ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point() + facet_wrap(~ vore)
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class)
 ```
 
-![](ggplot2_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](ggplot2_files/figure-html/unnamed-chunk-42-1.png)<!-- -->
 
 ```r
-ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point() + facet_grid(continent ~ vore)
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_grid(.~class)
 ```
 
-![](ggplot2_files/figure-html/unnamed-chunk-15-2.png)<!-- -->
+![](ggplot2_files/figure-html/unnamed-chunk-42-2.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_grid(class~drv)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-42-3.png)<!-- -->
 
 Controling facet_wrap organisation
 
 
 ```r
-ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point() + facet_wrap(~ vore, nrow = 1)
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class, ncol = 2)
 ```
 
-![](ggplot2_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+![](ggplot2_files/figure-html/unnamed-chunk-43-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class, scales = "free")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-43-2.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class, scales = "free_x")
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-43-3.png)<!-- -->
 
 All layers are faceted
 
+
 ```r
-ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point() + facet_wrap(~ vore) + geom_smooth(se = FALSE, method = "lm")
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_smooth() + facet_grid(~drv)
 ```
 
-![](ggplot2_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+![](ggplot2_files/figure-html/unnamed-chunk-44-1.png)<!-- -->
 
 
-- scales free
-- labels
+### add supplementary information on plot
 
-### add supplementary data
+#### add lines
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_hline(yintercept = 20)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-45-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_vline(xintercept = 4.5)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-45-2.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_abline(slope = -2, intercept = 35)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-45-3.png)<!-- -->
+
+#### annotate
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + annotate(x = 4, y = 30, geom = "point", color = "red", size = 4)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-46-1.png)<!-- -->
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + annotate(x = 4, y = 30, geom = "label", label = "annotation") 
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-46-2.png)<!-- -->
+
+#### add data from external data.frame
+
+```r
+d_annot <- data.frame(xpos = c(2, 5, 8), ypos = c(20, 25, 40), lab = c("l1", "l2", "l3"))
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_label(aes(x = xpos, y = ypos, label = lab), data = d_annot)
+```
+
+![](ggplot2_files/figure-html/unnamed-chunk-47-1.png)<!-- -->
+
 
 ### Programming with ggplot2
 
@@ -313,61 +731,28 @@ ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point() + facet_wrap(
 
 
 ```r
-var_x <- "sleep_total"
-var_y <- "sleep_rem"
-ggplot(msleep, aes(x = var_x, y = var_y)) + geom_point()
+my_var <- "displ"
+ggplot(mpg, aes(x = my_var, y = hwy)) + geom_point()
 ```
 
-![](ggplot2_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+![](ggplot2_files/figure-html/unnamed-chunk-48-1.png)<!-- -->
 
 ```r
-ggplot(msleep, aes_string(x = var_x, y = var_y)) + geom_point()
+ggplot(mpg, aes_string(x = my_var, y = "hwy")) + geom_point()
 ```
 
-![](ggplot2_files/figure-html/unnamed-chunk-18-2.png)<!-- -->
-
-
-### Plot heatmap with ggplot2
-
-
-```r
-ggplot(msleep, aes(x = continent, y = vore, fill = sleep_total)) + geom_tile()
-```
-
-![](ggplot2_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
-
-
-```r
-d <- as.data.frame(matrix(rnorm(100), ncol = 10))
-colnames(d) <- paste0("s", 1:10)
-d$gene <- paste0("g", 1:10)
-require(tidyr)
-dm <- gather(d, key = "sample", value = "exp", -gene) ## convert data to long format
-ggplot(dm, aes(x = sample, y = gene, fill = exp)) + geom_tile()
-```
-
-![](ggplot2_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
+![](ggplot2_files/figure-html/unnamed-chunk-48-2.png)<!-- -->
 
 
 ### Interactivity
+For interactive grahics see `ggvis` or `plotly` packages
 
 
 ```r
 require(plotly)
-g <- ggplot(msleep, aes(x = sleep_total, y = sleep_rem)) + geom_point()
+g <- ggplot(mpg, aes(x = displ, y = hwy)) + geom_point()
 ggplotly(g)
 ```
-
-<!--html_preserve--><div id="htmlwidget-5158" style="width:672px;height:480px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-5158">{"x":{"data":[{"x":[12.1,17,14.4,14.9,4,14.4,8.7,7,10.1,3,5.3,9.4,10,12.5,10.3,8.3,9.1,17.4,5.3,18,3.9,19.7,2.9,3.1,10.1,10.9,14.9,12.5,9.8,1.9,2.7,6.2,6.3,8,9.5,3.3,19.4,10.1,14.2,14.3,12.8,12.5,19.9,14.6,11,7.7,14.5,8.4,3.8,9.7,15.8,10.4,13.5,9.4,10.3,11,11.5,13.7,3.5,5.6,11.1,18.1,5.4,13,8.7,9.6,8.4,11.3,10.6,16.6,13.8,15.9,12.8,9.1,8.6,15.8,4.4,15.6,8.9,5.2,6.3,12.5,9.8],"y":[null,1.8,2.4,2.3,0.7,2.2,1.4,null,2.9,null,0.6,0.8,0.7,1.5,2.2,2,1.4,3.1,0.5,4.9,null,3.9,0.6,0.4,3.5,1.1,null,3.2,1.1,0.4,0.1,1.5,0.6,1.9,0.9,null,6.6,1.2,1.9,3.1,null,1.4,2,null,null,0.9,null,0.9,0.6,1.4,null,null,null,1,2.7,null,null,1.8,0.4,null,1.5,6.1,0.5,2.4,null,1.4,2.1,1.1,2.4,null,3.4,3,2,2.4,null,null,1,2.3,2.6,null,1.3,null,2.4],"text":["sleep_total: 12.1<br>sleep_rem: NA","sleep_total: 17<br>sleep_rem: 1.8","sleep_total: 14.4<br>sleep_rem: 2.4","sleep_total: 14.9<br>sleep_rem: 2.3","sleep_total: 4<br>sleep_rem: 0.7","sleep_total: 14.4<br>sleep_rem: 2.2","sleep_total: 8.7<br>sleep_rem: 1.4","sleep_total: 7<br>sleep_rem: NA","sleep_total: 10.1<br>sleep_rem: 2.9","sleep_total: 3<br>sleep_rem: NA","sleep_total: 5.3<br>sleep_rem: 0.6","sleep_total: 9.4<br>sleep_rem: 0.8","sleep_total: 10<br>sleep_rem: 0.7","sleep_total: 12.5<br>sleep_rem: 1.5","sleep_total: 10.3<br>sleep_rem: 2.2","sleep_total: 8.3<br>sleep_rem: 2","sleep_total: 9.1<br>sleep_rem: 1.4","sleep_total: 17.4<br>sleep_rem: 3.1","sleep_total: 5.3<br>sleep_rem: 0.5","sleep_total: 18<br>sleep_rem: 4.9","sleep_total: 3.9<br>sleep_rem: NA","sleep_total: 19.7<br>sleep_rem: 3.9","sleep_total: 2.9<br>sleep_rem: 0.6","sleep_total: 3.1<br>sleep_rem: 0.4","sleep_total: 10.1<br>sleep_rem: 3.5","sleep_total: 10.9<br>sleep_rem: 1.1","sleep_total: 14.9<br>sleep_rem: NA","sleep_total: 12.5<br>sleep_rem: 3.2","sleep_total: 9.8<br>sleep_rem: 1.1","sleep_total: 1.9<br>sleep_rem: 0.4","sleep_total: 2.7<br>sleep_rem: 0.1","sleep_total: 6.2<br>sleep_rem: 1.5","sleep_total: 6.3<br>sleep_rem: 0.6","sleep_total: 8<br>sleep_rem: 1.9","sleep_total: 9.5<br>sleep_rem: 0.9","sleep_total: 3.3<br>sleep_rem: NA","sleep_total: 19.4<br>sleep_rem: 6.6","sleep_total: 10.1<br>sleep_rem: 1.2","sleep_total: 14.2<br>sleep_rem: 1.9","sleep_total: 14.3<br>sleep_rem: 3.1","sleep_total: 12.8<br>sleep_rem: NA","sleep_total: 12.5<br>sleep_rem: 1.4","sleep_total: 19.9<br>sleep_rem: 2","sleep_total: 14.6<br>sleep_rem: NA","sleep_total: 11<br>sleep_rem: NA","sleep_total: 7.7<br>sleep_rem: 0.9","sleep_total: 14.5<br>sleep_rem: NA","sleep_total: 8.4<br>sleep_rem: 0.9","sleep_total: 3.8<br>sleep_rem: 0.6","sleep_total: 9.7<br>sleep_rem: 1.4","sleep_total: 15.8<br>sleep_rem: NA","sleep_total: 10.4<br>sleep_rem: NA","sleep_total: 13.5<br>sleep_rem: NA","sleep_total: 9.4<br>sleep_rem: 1","sleep_total: 10.3<br>sleep_rem: 2.7","sleep_total: 11<br>sleep_rem: NA","sleep_total: 11.5<br>sleep_rem: NA","sleep_total: 13.7<br>sleep_rem: 1.8","sleep_total: 3.5<br>sleep_rem: 0.4","sleep_total: 5.6<br>sleep_rem: NA","sleep_total: 11.1<br>sleep_rem: 1.5","sleep_total: 18.1<br>sleep_rem: 6.1","sleep_total: 5.4<br>sleep_rem: 0.5","sleep_total: 13<br>sleep_rem: 2.4","sleep_total: 8.7<br>sleep_rem: NA","sleep_total: 9.6<br>sleep_rem: 1.4","sleep_total: 8.4<br>sleep_rem: 2.1","sleep_total: 11.3<br>sleep_rem: 1.1","sleep_total: 10.6<br>sleep_rem: 2.4","sleep_total: 16.6<br>sleep_rem: NA","sleep_total: 13.8<br>sleep_rem: 3.4","sleep_total: 15.9<br>sleep_rem: 3","sleep_total: 12.8<br>sleep_rem: 2","sleep_total: 9.1<br>sleep_rem: 2.4","sleep_total: 8.6<br>sleep_rem: NA","sleep_total: 15.8<br>sleep_rem: NA","sleep_total: 4.4<br>sleep_rem: 1","sleep_total: 15.6<br>sleep_rem: 2.3","sleep_total: 8.9<br>sleep_rem: 2.6","sleep_total: 5.2<br>sleep_rem: NA","sleep_total: 6.3<br>sleep_rem: 1.3","sleep_total: 12.5<br>sleep_rem: NA","sleep_total: 9.8<br>sleep_rem: 2.4"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","name":""}],"layout":{"margin":{"b":40.1826484018265,"l":31.4155251141553,"t":26.2283105022831,"r":7.30593607305936},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"type":"linear","autorange":false,"tickmode":"array","range":[1,20.8],"ticktext":["5","10","15","20"],"tickvals":[5,10,15,20],"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"domain":[0,1],"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":"sleep_total","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"hoverformat":".2f"},"yaxis":{"type":"linear","autorange":false,"tickmode":"array","range":[-0.225,6.925],"ticktext":["0","2","4","6"],"tickvals":[0,2,4,6],"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"domain":[0,1],"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":"sleep_rem","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest"},"source":"A","config":{"modeBarButtonsToRemove":["sendDataToCloud"]},"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
-
-```r
-g <- ggplot(msleep, aes(x = sleep_total, y = sleep_rem, color = vore, text = name)) + geom_point()
-ggplotly(g)
-```
-
-<!--html_preserve--><div id="htmlwidget-1416" style="width:672px;height:480px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1416">{"x":{"data":[{"x":[12.1,8.7,10.1,17.4,12.5,2.7,6.2,19.4,11,14.5,15.8,10.4,13.5,3.5,5.6,5.2,6.3,12.5,9.8],"y":[null,1.4,2.9,3.1,3.2,0.1,1.5,6.6,null,null,null,null,null,0.4,null,null,1.3,null,2.4],"text":["sleep_total: 12.1<br>sleep_rem: NA<br>vore: carni<br>Cheetah","sleep_total: 8.7<br>sleep_rem: 1.4<br>vore: carni<br>Northern fur seal","sleep_total: 10.1<br>sleep_rem: 2.9<br>vore: carni<br>Dog","sleep_total: 17.4<br>sleep_rem: 3.1<br>vore: carni<br>Long-nosed armadillo","sleep_total: 12.5<br>sleep_rem: 3.2<br>vore: carni<br>Domestic cat","sleep_total: 2.7<br>sleep_rem: 0.1<br>vore: carni<br>Pilot whale","sleep_total: 6.2<br>sleep_rem: 1.5<br>vore: carni<br>Gray seal","sleep_total: 19.4<br>sleep_rem: 6.6<br>vore: carni<br>Thick-tailed opposum","sleep_total: 11<br>sleep_rem: NA<br>vore: carni<br>Slow loris","sleep_total: 14.5<br>sleep_rem: NA<br>vore: carni<br>Northern grasshopper mouse","sleep_total: 15.8<br>sleep_rem: NA<br>vore: carni<br>Tiger","sleep_total: 10.4<br>sleep_rem: NA<br>vore: carni<br>Jaguar","sleep_total: 13.5<br>sleep_rem: NA<br>vore: carni<br>Lion","sleep_total: 3.5<br>sleep_rem: 0.4<br>vore: carni<br>Caspian seal","sleep_total: 5.6<br>sleep_rem: NA<br>vore: carni<br>Common porpoise","sleep_total: 5.2<br>sleep_rem: NA<br>vore: carni<br>Bottle-nosed dolphin","sleep_total: 6.3<br>sleep_rem: 1.3<br>vore: carni<br>Genet","sleep_total: 12.5<br>sleep_rem: NA<br>vore: carni<br>Arctic fox","sleep_total: 9.8<br>sleep_rem: 2.4<br>vore: carni<br>Red fox"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"name":"carni","legendgroup":"carni","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text"},{"x":[14.4,4,14.4,3,5.3,9.4,12.5,5.3,3.9,2.9,3.1,14.9,1.9,6.3,9.5,3.3,14.2,14.3,12.8,12.5,14.6,7.7,8.4,3.8,11.1,13,11.3,16.6,13.8,15.9,15.8,4.4],"y":[2.4,0.7,2.2,null,0.6,0.8,1.5,0.5,null,0.6,0.4,null,0.4,0.6,0.9,null,1.9,3.1,null,1.4,null,0.9,0.9,0.6,1.5,2.4,1.1,null,3.4,3,null,1],"text":["sleep_total: 14.4<br>sleep_rem: 2.4<br>vore: herbi<br>Mountain beaver","sleep_total: 4<br>sleep_rem: 0.7<br>vore: herbi<br>Cow","sleep_total: 14.4<br>sleep_rem: 2.2<br>vore: herbi<br>Three-toed sloth","sleep_total: 3<br>sleep_rem: NA<br>vore: herbi<br>Roe deer","sleep_total: 5.3<br>sleep_rem: 0.6<br>vore: herbi<br>Goat","sleep_total: 9.4<br>sleep_rem: 0.8<br>vore: herbi<br>Guinea pig","sleep_total: 12.5<br>sleep_rem: 1.5<br>vore: herbi<br>Chinchilla","sleep_total: 5.3<br>sleep_rem: 0.5<br>vore: herbi<br>Tree hyrax","sleep_total: 3.9<br>sleep_rem: NA<br>vore: herbi<br>Asian elephant","sleep_total: 2.9<br>sleep_rem: 0.6<br>vore: herbi<br>Horse","sleep_total: 3.1<br>sleep_rem: 0.4<br>vore: herbi<br>Donkey","sleep_total: 14.9<br>sleep_rem: NA<br>vore: herbi<br>Western american chipmunk","sleep_total: 1.9<br>sleep_rem: 0.4<br>vore: herbi<br>Giraffe","sleep_total: 6.3<br>sleep_rem: 0.6<br>vore: herbi<br>Gray hyrax","sleep_total: 9.5<br>sleep_rem: 0.9<br>vore: herbi<br>Mongoose lemur","sleep_total: 3.3<br>sleep_rem: NA<br>vore: herbi<br>African elephant","sleep_total: 14.2<br>sleep_rem: 1.9<br>vore: herbi<br>Mongolian gerbil","sleep_total: 14.3<br>sleep_rem: 3.1<br>vore: herbi<br>Golden hamster","sleep_total: 12.8<br>sleep_rem: NA<br>vore: herbi<br>Vole ","sleep_total: 12.5<br>sleep_rem: 1.4<br>vore: herbi<br>House mouse","sleep_total: 14.6<br>sleep_rem: NA<br>vore: herbi<br>Round-tailed muskrat","sleep_total: 7.7<br>sleep_rem: 0.9<br>vore: herbi<br>Degu","sleep_total: 8.4<br>sleep_rem: 0.9<br>vore: herbi<br>Rabbit","sleep_total: 3.8<br>sleep_rem: 0.6<br>vore: herbi<br>Sheep","sleep_total: 11.1<br>sleep_rem: 1.5<br>vore: herbi<br>Potoroo","sleep_total: 13<br>sleep_rem: 2.4<br>vore: herbi<br>Laboratory rat","sleep_total: 11.3<br>sleep_rem: 1.1<br>vore: herbi<br>Cotton rat","sleep_total: 16.6<br>sleep_rem: NA<br>vore: herbi<br>Arctic ground squirrel","sleep_total: 13.8<br>sleep_rem: 3.4<br>vore: herbi<br>Thirteen-lined ground squirrel","sleep_total: 15.9<br>sleep_rem: 3<br>vore: herbi<br>Golden-mantled ground squirrel","sleep_total: 15.8<br>sleep_rem: NA<br>vore: herbi<br>Eastern american chipmunk","sleep_total: 4.4<br>sleep_rem: 1<br>vore: herbi<br>Brazilian tapir"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(124,174,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(124,174,0,1)"}},"name":"herbi","legendgroup":"herbi","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text"},{"x":[19.7,19.9,18.1,8.4,8.6],"y":[3.9,2,6.1,2.1,null],"text":["sleep_total: 19.7<br>sleep_rem: 3.9<br>vore: insecti<br>Big brown bat","sleep_total: 19.9<br>sleep_rem: 2<br>vore: insecti<br>Little brown bat","sleep_total: 18.1<br>sleep_rem: 6.1<br>vore: insecti<br>Giant armadillo","sleep_total: 8.4<br>sleep_rem: 2.1<br>vore: insecti<br>Eastern american mole","sleep_total: 8.6<br>sleep_rem: NA<br>vore: insecti<br>Short-nosed echidna"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,191,196,1)"}},"name":"insecti","legendgroup":"insecti","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text"},{"x":[17,14.9,10,10.3,8.3,9.1,18,10.1,10.9,9.8,8,10.1,9.7,9.4,11,8.7,9.6,9.1,15.6,8.9],"y":[1.8,2.3,0.7,2.2,2,1.4,4.9,3.5,1.1,1.1,1.9,1.2,1.4,1,null,null,1.4,2.4,2.3,2.6],"text":["sleep_total: 17<br>sleep_rem: 1.8<br>vore: omni<br>Owl monkey","sleep_total: 14.9<br>sleep_rem: 2.3<br>vore: omni<br>Greater short-tailed shrew","sleep_total: 10<br>sleep_rem: 0.7<br>vore: omni<br>Grivet","sleep_total: 10.3<br>sleep_rem: 2.2<br>vore: omni<br>Star-nosed mole","sleep_total: 8.3<br>sleep_rem: 2<br>vore: omni<br>African giant pouched rat","sleep_total: 9.1<br>sleep_rem: 1.4<br>vore: omni<br>Lesser short-tailed shrew","sleep_total: 18<br>sleep_rem: 4.9<br>vore: omni<br>North American Opossum","sleep_total: 10.1<br>sleep_rem: 3.5<br>vore: omni<br>European hedgehog","sleep_total: 10.9<br>sleep_rem: 1.1<br>vore: omni<br>Patas monkey","sleep_total: 9.8<br>sleep_rem: 1.1<br>vore: omni<br>Galago","sleep_total: 8<br>sleep_rem: 1.9<br>vore: omni<br>Human","sleep_total: 10.1<br>sleep_rem: 1.2<br>vore: omni<br>Macaque","sleep_total: 9.7<br>sleep_rem: 1.4<br>vore: omni<br>Chimpanzee","sleep_total: 9.4<br>sleep_rem: 1<br>vore: omni<br>Baboon","sleep_total: 11<br>sleep_rem: NA<br>vore: omni<br>Potto","sleep_total: 8.7<br>sleep_rem: NA<br>vore: omni<br>African striped mouse","sleep_total: 9.6<br>sleep_rem: 1.4<br>vore: omni<br>Squirrel monkey","sleep_total: 9.1<br>sleep_rem: 2.4<br>vore: omni<br>Pig","sleep_total: 15.6<br>sleep_rem: 2.3<br>vore: omni<br>Tenrec","sleep_total: 8.9<br>sleep_rem: 2.6<br>vore: omni<br>Tree shrew"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(199,124,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(199,124,255,1)"}},"name":"omni","legendgroup":"omni","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text"},{"x":[7,10.3,11.5,13.7,5.4,10.6,12.8],"y":[null,2.7,null,1.8,0.5,2.4,2],"text":["sleep_total: 7<br>sleep_rem: NA<br>vore: NA<br>Vesper mouse","sleep_total: 10.3<br>sleep_rem: 2.7<br>vore: NA<br>Desert hedgehog","sleep_total: 11.5<br>sleep_rem: NA<br>vore: NA<br>Deer mouse","sleep_total: 13.7<br>sleep_rem: 1.8<br>vore: NA<br>Phalanger","sleep_total: 5.4<br>sleep_rem: 0.5<br>vore: NA<br>Rock hyrax","sleep_total: 10.6<br>sleep_rem: 2.4<br>vore: NA<br>Mole rat","sleep_total: 12.8<br>sleep_rem: 2<br>vore: NA<br>Musk shrew"],"key":null,"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(127,127,127,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(127,127,127,1)"}},"name":"NA","legendgroup":"NA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text"}],"layout":{"margin":{"b":40.1826484018265,"l":31.4155251141553,"t":26.2283105022831,"r":7.30593607305936},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"type":"linear","autorange":false,"tickmode":"array","range":[1,20.8],"ticktext":["5","10","15","20"],"tickvals":[5,10,15,20],"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"domain":[0,1],"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":"sleep_total","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"hoverformat":".2f"},"yaxis":{"type":"linear","autorange":false,"tickmode":"array","range":[-0.225,6.925],"ticktext":["0","2","4","6"],"tickvals":[0,2,4,6],"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"domain":[0,1],"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":"sleep_rem","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.913385826771654},"annotations":[{"text":"vore","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"top"}],"hovermode":"closest"},"source":"A","config":{"modeBarButtonsToRemove":["sendDataToCloud"]},"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
 
 
 ### Extensions
