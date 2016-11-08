@@ -3,9 +3,8 @@ title: "ggplot2"
 author: "Pierre Gestraud"
 date: "4 octobre 2016"
 output: 
-  html_document: 
-    self_contained: no
-    keep_md: true
+  github_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +13,6 @@ knitr::opts_knit$set(cache = TRUE)
 require(ggplot2)
 ```
 
-
 ### Example data
 
 ```{r}
@@ -22,7 +20,6 @@ head(mpg)
 ```
 
 ### Quickstart
-
 
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point()
@@ -40,6 +37,12 @@ ggplot(mpg,   ## data
     geom_point() ## layer
 ```
 
+#### add geoms
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_line()
+```
+
+
 ### aesthetics
 
 - `x`
@@ -49,6 +52,9 @@ ggplot(mpg,   ## data
 - `fill`
 - `size`
 - `text`
+- `shape`
+- `alpha`
+- `group`
 
 Set color aesthetic to `manufacturer variable`
 
@@ -62,11 +68,13 @@ Set size aesthetic
 ggplot(mpg, aes(x = displ, y = hwy, size = cyl)) + geom_point()
 ```
 
+
 Alpha aesthetic
 
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy, size = cyl, color = class)) + geom_point(alpha = 0.5)
 ```
+
 
 Set an aesthetic to a fixed value
 
@@ -74,6 +82,7 @@ Set an aesthetic to a fixed value
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point(aes(color = "blue"))
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point(color = "blue")
 ```
+
 
 Set an aestetic to a discrete numeric value
 ```{r}
@@ -279,8 +288,8 @@ Scales are mainly controlled by `scale_*` functions. Their names are structured:
 #### Discrete scales
 
 ```{r}
-ggplot(mpg, aes(x = displ, y = hwy, color = class)) + geom_point() + scale_color_discrete(h = c(50, 150))
-ggplot(mpg, aes(x = displ, y = hwy, color = class)) + geom_point() + scale_color_brewer(palette = "Set3")
+ggplot(mpg, aes(x = displ, y = hwy, color = class)) + geom_point() + scale_color_discrete(h = c(20, 150))
+ggplot(mpg, aes(x = displ, y = hwy, color = class)) + geom_point() + scale_color_brewer(palette = "Set2")
 ggplot(mpg, aes(x = displ, y = hwy, color = factor(cyl))) + geom_point() + scale_color_manual(values = c("blue", "black", "red", "pink"))
 ggplot(mpg, aes(x = displ, y = hwy, color = factor(cyl))) + geom_point() + scale_color_manual(values = c('8' = "blue", '6' = "black", '4' = "red", '5' = "pink"))
 ```
@@ -440,7 +449,18 @@ ggplot(mpg, aes_string(x = my_var, y = "hwy")) + geom_point()
 
 
 ### Interactivity
-For interactive grahics see `ggvis` or `plotly` packages
+For interactive graphics see `ggvis` or `plotly` packages
+
+```{r, eval = FALSE}
+require(ggvis)
+ggvis(mpg, ~displ, ~hwy) %>% layer_points()
+```
+```{r, eval=FALSE}
+ggvis(mpg, ~displ, ~hwy) %>%  
+    layer_smooths(span = input_slider(0.2, 1, value = 1), stroke := "blue") %>% 
+    layer_points(size := input_slider(10, 200, value = 50))
+```
+
 
 ```{r, eval = FALSE}
 require(plotly)
@@ -458,8 +478,10 @@ ggplotly(g)
 - `factoextra`: visualise results of factorial analysis (PCA, CA, MCA, MFA, ...)
 - `ggbio`: visualise genomic data
 - `ggdendro`: visualise dendrograms and trees
+- `ggthemes`: additionnal themes
 
 ### Ressources
 
 - http://docs.ggplot2.org
 - rstudio cheatsheet http://www.rstudio.com/wp-content/uploads/2015/04/ggplot2-cheatsheet.pdf
+- ggplot2 book https://github.com/hadley/ggplot2-book

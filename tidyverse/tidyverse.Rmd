@@ -1,26 +1,371 @@
 ---
-title: "Data science with R"
+title: "tidyverse"
 author: "Pierre Gestraud"
-date: "4 octobre 2016"
-output: ioslides_presentation
+output:
+  github_document: default
+  html_document: default
+  html_notebook: default
+  ioslides_presentation: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE, include = TRUE, fig.align = "center", out.width = "600px")
+require(tidyverse)
+require(broom)
+require(modelr)
+require(gapminder)
 ```
 
+
+## tidyverse
+
+* `tidyverse` is a suite of packages that follow tidy philosophy
+* initiated by Hadley Wickham
+
+Packages in tidyverse:
+
+- Core packages: ggplot2, dplyr, tidyr, readr, purrr, tibble
+- Specialized data manipulation: hms, stringr, lubridate, forcats
+- Data import: DBI, haven, httr, jsonlite, readxl, rvest, xml2
+- Modeling: modelr, broom
+
+### Tidy data
+
+* each variable in the data set is placed in its own column
+* each observation in the data set is placed in its own row
+* each value is placed in its own cell
+
+```{r, echo = FALSE}
+knitr::include_graphics("images/tidy-1.png")
+```
+
+*Tidy Data, Hadley Wickham, JSS 2014*
+
+### Tidy APIs
+
+Functions should be **consistent** and  **readable**
+
+- Take one step at a time
+- Connect simple steps
+- Consistency
+    * almost all functions take `data.frame` as first argument and return a `data.frame`
+    * all `stringr` functions take string as first argument
+- Runs fast (use `RCPP`)    
 
 
 ## Data science workflow
 
+```{r, echo = FALSE}
+knitr::include_graphics("images/data-science.png")
+```
+
+## Data wrangling
+
+```{r, echo = FALSE}
+knitr::include_graphics("images/data-science-wrangle.png")
+```
+
+## Data import
+
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/RStudio_Hex_readr.png")
+```
+
+* package `readr`
+* `read_table`, `read_csv`, `read_delim`
+* compared to base functions, `readr` is 10x faster
+* characters are never automatically converted to factors (i.e. no more stringsAsFactors = FALSE!)
+* column names are left
+* row names are never set
+* create tibbles
+
+## tibbles
+
+* package `tibble`
+* new implementation of `data.frame`
+* tibbles are main objects when working with tiydverse 
+
+tibbles vs data.frames:
+
+* print
+* subsetting with `$`: no partial matching, warning if access to non existing column
+* when creating, never change type of input, never change column names, never create rownames
+
+```{r}
+colnames(who) <- gsub("newrel", "new_rel", colnames(who))
+who
+```
+
+
+## tidyr
+
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/RStudio_Hex_tidyr.png")
+```
+
+* convert wide data to long (`gather`)
+* convert long data to wide (`spread`)
+* merge variables into one (`unite`)
+* split variable into several (`separate`)
+* replace package `reshape2`
+
+```{r, echo=FALSE}
+knitr::include_graphics("images/tidyr.jpg")
+```
+
+```{r}
+## wide to long
+gather(who)
+
+who_long <- gather(who, group, cases, -country, -iso2, -iso3, -year)
+who_long <- na.omit(who_long)
+
+## long to wide
+spread(who_long, key = group, value = cases)
+
+## separate
+separate(who_long, col = group, sep = "_", into = c("new", "pos", "patient"))
+
+who_long <- separate(who_long, col = group, sep = "_", into = c("new", "pos", "patient"), remove = FALSE)
+```
+
+
 ## Data manipulation
 
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/RStudio_Hex_dplyr.png")
+```
+
+- package `dplyr`
+- grammar of data manipulation
+
+## dplyr
+
+Verbs: 
+
+* `arrange`
+* `filter`
+* `select`
+* `mutate`
+* `transmute`
+* `summarise`
+* `do`
+
+Apply operations by group with `group_by`
+
+Join tables (`full_join`, `right_join`, `left_join`, `inner_join`)
+
+```{r}
+filter(who_long, year <= 2000)
+filter(who_long, year <= 2000, country == "Afghanistan")
+
+arrange(who_long, cases)
+arrange(who_long, desc(cases))
+
+select(who_long, country, cases, year)
+select(who_long, country, number = cases, year)
+select(who_long, -group)
+select(who_long, starts_with("p"))
+
+mutate(who_long, log_cases = log(1 + cases), cases2 = exp(log_cases) - 1)
+
+summarise(who_long, m = mean(cases))
+
+who_long <- mutate(who_long, gender = substr(patient, 1, 1))
+
+
+who_long_by_country <- group_by(who_long, country)
+summarise(who_long_by_country, m = mean(cases))
+summarise(who_long_by_country, m = mean(cases), number = n())
+summarise(who_long_by_country, m = mean(cases), log_mean = log(m))
+
+who_long_by_country_gender <- group_by(who_long, country, gender)
+summarise(who_long_by_country_gender, m = mean(cases))
+
+```
+
+## magrittr
+
+"Ceci n'est pas un pipe"
+
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/RStudio_Hex_pipe.png")
+```
+
+* `magrittr` introduce new pipe operator: `%>%`
+* makes code more readable
+* provides aliases (`extract`, `add`, `equals`, `set_colnames`...)
+
+```{r, out.width = "400px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/magrittr_idea.png")
+```
+
+```{r}
+who_long %>% group_by(country) %>% summarise(number = n(), m = mean(cases))
+
+who_long %>% 
+    filter(year <= 2000) %>% 
+    group_by(country) %>% 
+    summarise(number = n(), m = mean(cases))
+```
+
+* `magrittr` gives to LHS function the result of RHS as first argument
+* use `.` to put RHS result somewhere else
+
+```{r}
+who_long %>% lm(cases ~ gender, data = .)
+```
+
+## purrr
+
+* `purrr` works on lists
+* family of `map` functions replace `apply` 
+* control over output type
+
+```{r}
+iris %>% select(-Species) %>% map(mean)
+iris %>% select(-Species) %>% map_df(mean)
+iris %>% select(-Species) %>% map_dbl(mean)
+iris %>% map_if(is.numeric, mean)
+```
+
+* `flatten`
+* `transpose`
+
+## Data visualisation
+
+* `ggplot2` 
+* perfectly integrated in workflow
+
+```{r}
+who_long %>% 
+    filter(year >= 2000) %>% 
+    group_by(country, year) %>% 
+    summarise(m = mean(cases)) %>% 
+    ggplot(aes(x = year, y = m, group = country)) + geom_line()
+```
+
+## Model
+
+```{r, out.width = "600px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/data-science-model.png")
+```
+
+## broom
+
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/rstudio-hex-broom.png")
+```
+
+* `broom` makes tidy data from models
+* `glance`: model summary
+* `tidy`: information about coefficients
+* `augment`: information about observations
+* support for large number of models (`lm`, `glm`, `lme4`, `gam`, `anova`, `nls`, `kmeans`, `arima`...)
+
+```{r}
+mod <- lm(Sepal.Length ~ Petal.Length, data = iris)
+glance(mod)
+tidy(mod)
+augment(mod) %>% head
+```
+
+
+And for bioinformatics? Use `biobroom`! (https://www.bioconductor.org/packages/release/bioc/html/biobroom.html)
+
+## modelr
+
+* package `modelr` to work with models and data.frame
+* `add_predictions`
+* `add_residuals`
+
+```{r}
+iris %>% add_residuals(mod) %>% add_predictions(mod) %>% head
+```
+
+
+## Many models
+
+* create a nested data.frame
+
+```{r}
+gap_by_country <- gapminder %>% 
+    group_by(country, continent) %>% 
+    nest
+```
+* column data is a `list`
+
+* compute model for each country
+```{r}
+gap_by_country <- gap_by_country %>% mutate(mod = map(data, ~lm(lifeExp ~ year, data = .)))
+```
+
+* models and data are stored together
+
+* now add information about model
+```{r}
+gap_by_country %>% 
+    mutate(glance = map(mod, glance)) %>% 
+    unnest(glance) %>% 
+    arrange(r.squared)
+
+## find bad quality models
+gap_by_country %>% 
+    mutate(glance = map(mod, glance)) %>% 
+    unnest(glance) %>% 
+    filter(r.squared <= 0.1)
+```
+
+
+```{r}
+gap_by_country %>% 
+    mutate(augment = map(mod, augment)) %>% 
+    unnest(augment) %>% 
+    ggplot(aes(x = year, y = .fitted, group = country)) + geom_line() + facet_wrap(~continent)
+```
+
+```{r}
+gap_by_country %>% 
+    mutate(tidy = map(mod, tidy)) %>% 
+    unnest(tidy) %>% 
+    filter(term == "year") %>% 
+    ggplot(aes(x = continent, y = estimate)) + geom_boxplot()
+```
+
+## Data type specific packages
+
+## Strings
+
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/RStudio_Hex_stringr.png")
+```
+
+* package `stringr`
+* enhances base functions for strings manipulations
+* functions `str_`*
+
+## Dates
+
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/RStudio_Hex_lubridate.png")
+```
+
+- package `lubridate`
+- enhances base functions for dates and times manipulations
+- `ymd`, `year`, `month`, `day`, `round_date`, `floor_date`
+
+## Factors
+
+* package `forcats`
+* change levels, order...
 
 ## A package to rule them all
 
-- package tidyverse
+- package `tidyverse`
+- install all packages of tidyverse
+- when loaded, attach only some packages
 
 ## Ressources
 
-- R4ds
+- R4ds (http://r4ds.had.co.nz/)
 - rstudio cheatsheet
