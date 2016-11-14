@@ -2,9 +2,9 @@
 title: "tidyverse"
 author: "Pierre Gestraud"
 output:
-  github_document: default
-  html_document: default
   html_notebook: default
+  html_document: default
+  github_document: default
   ioslides_presentation: default
 ---
 
@@ -355,6 +355,11 @@ knitr::include_graphics("images/RStudio_Hex_lubridate.png")
 - `ymd`, `year`, `month`, `day`, `round_date`, `floor_date`
 
 ## Factors
+
+
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/forcats.png")
+```
 
 * package `forcats`
 * change levels, order...
