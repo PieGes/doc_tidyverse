@@ -2,10 +2,10 @@
 title: "ggplot2"
 author: "Pierre Gestraud"
 date: "4 octobre 2016"
-output: 
-  html_notebook: default
+output:
   github_document: default
   html_document: default
+  html_notebook: default
 ---
 
 ```{r setup, include=FALSE}

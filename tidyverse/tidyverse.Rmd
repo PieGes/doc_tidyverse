@@ -2,9 +2,9 @@
 title: "tidyverse"
 author: "Pierre Gestraud"
 output:
-  github_document: default
-  html_document: default
   html_notebook: default
+  html_document: default
+  github_document: default
   ioslides_presentation: default
 ---
 
@@ -94,6 +94,8 @@ tibbles vs data.frames:
 ```{r}
 colnames(who) <- gsub("newrel", "new_rel", colnames(who))
 who
+who$coun
+as.data.frame(who[1:5, ])$coun
 ```
 
 
@@ -120,13 +122,15 @@ gather(who)
 who_long <- gather(who, group, cases, -country, -iso2, -iso3, -year)
 who_long <- na.omit(who_long)
 
+who_long
+
 ## long to wide
 spread(who_long, key = group, value = cases)
 
 ## separate
-separate(who_long, col = group, sep = "_", into = c("new", "pos", "patient"))
+separate(who_long, col = group, sep = "_", into = c("new", "diag", "patient"))
 
-who_long <- separate(who_long, col = group, sep = "_", into = c("new", "pos", "patient"), remove = FALSE)
+who_long <- separate(who_long, col = group, sep = "_", into = c("new", "diag", "patient"), remove = FALSE)
 ```
 
 
@@ -201,8 +205,8 @@ knitr::include_graphics("images/magrittr_idea.png")
 ```
 
 ```{r}
+## summarise(group_by(who_long, country), number = n(), m = mean(cases))
 who_long %>% group_by(country) %>% summarise(number = n(), m = mean(cases))
-
 who_long %>% 
     filter(year <= 2000) %>% 
     group_by(country) %>% 

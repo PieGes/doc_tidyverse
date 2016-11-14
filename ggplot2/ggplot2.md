@@ -59,7 +59,9 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_line()
 -   `fill`
 -   `size`
 -   `text`
+-   `label`
 -   `shape`
+-   `linetype`
 -   `alpha`
 -   `group`
 
@@ -82,7 +84,7 @@ ggplot(mpg, aes(x = displ, y = hwy, size = cyl)) + geom_point()
 Alpha aesthetic
 
 ``` r
-ggplot(mpg, aes(x = displ, y = hwy, size = cyl, color = class)) + geom_point(alpha = 0.5)
+ggplot(mpg, aes(x = displ, y = hwy, size = cyl)) + geom_point(alpha = 0.5)
 ```
 
 ![](ggplot2_files/figure-markdown_github/unnamed-chunk-7-1.png)
@@ -131,6 +133,12 @@ ggplot(mpg, aes(x = class, y = hwy, color = class)) + geom_boxplot() + geom_poin
 
 ![](ggplot2_files/figure-markdown_github/unnamed-chunk-11-1.png)
 
+``` r
+ggplot(mpg, aes(x = class, y = hwy)) + geom_boxplot(aes(color = class)) + geom_point()
+```
+
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-11-2.png)
+
 ### a ggplot is an object
 
 We can build a `ggplot` object in several steps
@@ -163,6 +171,7 @@ g
         -   `geom_point`
         -   `geom_smooth`
         -   `geom_text`
+        -   `geom_line`
     -   discrete X, continuous Y
         -   `geom_bar`
         -   `geom_boxplot`
@@ -329,7 +338,13 @@ Bar plot from count data
 
 ``` r
 d <- data.frame(group = c("a", "b", "c"), n = c(10, 25 , 14))
+d
 ```
+
+    ##   group  n
+    ## 1     a 10
+    ## 2     b 25
+    ## 3     c 14
 
 ``` r
 ## error
@@ -338,6 +353,13 @@ ggplot(d, aes(x = group, y = n)) + geom_bar(stat = "identity")
 ```
 
 ![](ggplot2_files/figure-markdown_github/unnamed-chunk-26-1.png)
+
+``` r
+## or
+ggplot(d, aes(x = group, y = n)) + geom_col()
+```
+
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-26-2.png)
 
 ### add a smoother on the plot
 
@@ -474,7 +496,7 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + coord_cartesian(xlim = c(2
 
 ![](ggplot2_files/figure-markdown_github/unnamed-chunk-34-3.png)
 
-Warning: when computing densities or smoothers, the plot will completely change by using `xlim`/`ylim`
+Warning: when computing distributions or smoothers, the plot will completely change by using `xlim`/`ylim`
 
 ``` r
 ggplot(mpg, aes(x = displ)) + geom_density(fill = "gray50")
@@ -504,6 +526,12 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + coord_flip()
 
 ![](ggplot2_files/figure-markdown_github/unnamed-chunk-36-1.png)
 
+``` r
+ggplot(mpg, aes(x = class, y = displ)) + geom_boxplot() + coord_flip()
+```
+
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-36-2.png)
+
 -   polar coordinates
 
 ``` r
@@ -511,6 +539,12 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + coord_polar()
 ```
 
 ![](ggplot2_files/figure-markdown_github/unnamed-chunk-37-1.png)
+
+``` r
+ggplot(mpg, aes(x = class, y = displ)) + geom_boxplot() + coord_polar()
+```
+
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-37-2.png)
 
 -   reverse axis
 
@@ -523,7 +557,7 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + scale_x_reverse()
 -   log axis
 
 ``` r
-ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + scale_x_log10()
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + scale_x_log10() 
 ```
 
 ![](ggplot2_files/figure-markdown_github/unnamed-chunk-39-1.png)
@@ -581,6 +615,21 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + theme(panel.background = e
 
 ![](ggplot2_files/figure-markdown_github/unnamed-chunk-42-1.png)
 
+User defined theme
+
+``` r
+my_theme <- function() theme_bw() %+replace% theme(panel.background = element_rect(fill = "wheat"))
+g
+```
+
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-43-1.png)
+
+``` r
+g + my_theme()
+```
+
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-43-2.png)
+
 ### Faceting
 
 Facetting allows to display plot separately according to discrete variables
@@ -591,19 +640,19 @@ Two functions for facetting: - `facet_wrap` - `facet_grid`
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-43-1.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-44-1.png)
 
 ``` r
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_grid(.~class)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-43-2.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-44-2.png)
 
 ``` r
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_grid(class~drv)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-43-3.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-44-3.png)
 
 Controling facet\_wrap organisation
 
@@ -611,19 +660,19 @@ Controling facet\_wrap organisation
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class, ncol = 2)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-44-1.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-45-1.png)
 
 ``` r
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class, scales = "free")
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-44-2.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-45-2.png)
 
 ``` r
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class, scales = "free_x")
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-44-3.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-45-3.png)
 
 All layers are faceted
 
@@ -631,7 +680,7 @@ All layers are faceted
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_smooth() + facet_grid(~drv)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-45-1.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-46-1.png)
 
 ### add supplementary information on plot
 
@@ -641,19 +690,19 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_smooth() + facet_grid
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_hline(yintercept = 20)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-46-1.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-47-1.png)
 
 ``` r
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_vline(xintercept = 4.5)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-46-2.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-47-2.png)
 
 ``` r
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_abline(slope = -2, intercept = 35)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-46-3.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-47-3.png)
 
 #### annotate
 
@@ -661,22 +710,22 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_abline(slope = -2, in
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + annotate(x = 4, y = 30, geom = "point", color = "red", size = 4)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-47-1.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-48-1.png)
 
 ``` r
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + annotate(x = 4, y = 30, geom = "label", label = "annotation") 
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-47-2.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-48-2.png)
 
 #### add data from external data.frame
 
 ``` r
-d_annot <- data.frame(xpos = c(2, 5, 8), ypos = c(20, 25, 40), lab = c("l1", "l2", "l3"))
+d_annot <- data.frame(xpos = c(2, 5, 8), ypos = c(20, 25, 40), lab = c("lab1", "lab2", "lab3"))
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_label(aes(x = xpos, y = ypos, label = lab), data = d_annot)
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-48-1.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-49-1.png)
 
 ### Programming with ggplot2
 
@@ -687,13 +736,13 @@ my_var <- "displ"
 ggplot(mpg, aes(x = my_var, y = hwy)) + geom_point()
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-49-1.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-50-1.png)
 
 ``` r
 ggplot(mpg, aes_string(x = my_var, y = "hwy")) + geom_point()
 ```
 
-![](ggplot2_files/figure-markdown_github/unnamed-chunk-49-2.png)
+![](ggplot2_files/figure-markdown_github/unnamed-chunk-50-2.png)
 
 ### Interactivity
 
