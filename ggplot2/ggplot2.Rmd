@@ -3,6 +3,7 @@ title: "ggplot2"
 author: "Pierre Gestraud"
 date: "4 octobre 2016"
 output: 
+  html_notebook: default
   github_document: default
   html_document: default
 ---
@@ -52,7 +53,9 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_line()
 - `fill`
 - `size`
 - `text`
+- `label`
 - `shape`
+- `linetype`
 - `alpha`
 - `group`
 
@@ -72,7 +75,7 @@ ggplot(mpg, aes(x = displ, y = hwy, size = cyl)) + geom_point()
 Alpha aesthetic
 
 ```{r}
-ggplot(mpg, aes(x = displ, y = hwy, size = cyl, color = class)) + geom_point(alpha = 0.5)
+ggplot(mpg, aes(x = displ, y = hwy, size = cyl)) + geom_point(alpha = 0.5)
 ```
 
 
@@ -100,6 +103,7 @@ Aesthetics defined inside `ggplot` apply to all geom
 
 ```{r}
 ggplot(mpg, aes(x = class, y = hwy, color = class)) + geom_boxplot() + geom_point()
+ggplot(mpg, aes(x = class, y = hwy)) + geom_boxplot(aes(color = class)) + geom_point()
 ```
 
 ### a ggplot is an object
@@ -127,6 +131,7 @@ g
         - `geom_point`
         - `geom_smooth`
         - `geom_text`
+        - `geom_line`
     + discrete X, continuous Y
         - `geom_bar`
         - `geom_boxplot`
@@ -232,12 +237,15 @@ Bar plot from count data
 
 ```{r}
 d <- data.frame(group = c("a", "b", "c"), n = c(10, 25 , 14))
+d
 ```
 
 ```{r}
 ## error
 ## ggplot(d, aes(x = group, y = n)) + geom_bar()
 ggplot(d, aes(x = group, y = n)) + geom_bar(stat = "identity")
+## or
+ggplot(d, aes(x = group, y = n)) + geom_col()
 ```
 
 
@@ -321,7 +329,7 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + xlim(c(2, 6))
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + coord_cartesian(xlim = c(2, 6))
 ```
 
-Warning: when computing densities or smoothers, the plot will completely change by using `xlim`/`ylim`
+Warning: when computing distributions or smoothers, the plot will completely change by using `xlim`/`ylim`
 
 ```{r}
 ggplot(mpg, aes(x = displ)) + geom_density(fill = "gray50")
@@ -335,12 +343,14 @@ ggplot(mpg, aes(x = displ)) + geom_density(fill = "gray50") + coord_cartesian(xl
 
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + coord_flip()
+ggplot(mpg, aes(x = class, y = displ)) + geom_boxplot() + coord_flip()
 ```
 
 * polar coordinates
 
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + coord_polar()
+ggplot(mpg, aes(x = class, y = displ)) + geom_boxplot() + coord_polar()
 ```
 
 * reverse axis
@@ -352,7 +362,7 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + scale_x_reverse()
 * log axis
 
 ```{r}
-ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + scale_x_log10()
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + scale_x_log10() 
 ```
 
 * order of discrete scales
@@ -384,6 +394,15 @@ We can customize some elements in themes (see http://docs.ggplot2.org/dev/vignet
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + theme(panel.background = element_rect(fill = "wheat"), axis.text = element_text(size = 20))
 ```
+
+User defined theme
+
+```{r}
+my_theme <- function() theme_bw() %+replace% theme(panel.background = element_rect(fill = "wheat"))
+g
+g + my_theme()
+```
+
 
 ### Faceting
 
@@ -432,7 +451,7 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + annotate(x = 4, y = 30, ge
 
 #### add data from external data.frame
 ```{r}
-d_annot <- data.frame(xpos = c(2, 5, 8), ypos = c(20, 25, 40), lab = c("l1", "l2", "l3"))
+d_annot <- data.frame(xpos = c(2, 5, 8), ypos = c(20, 25, 40), lab = c("lab1", "lab2", "lab3"))
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_label(aes(x = xpos, y = ypos, label = lab), data = d_annot)
 ```
 
