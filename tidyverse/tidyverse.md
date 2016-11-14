@@ -860,6 +860,8 @@ Dates
 Factors
 -------
 
+<img src="images/forcats.png" width="100px" style="display: block; margin: auto;" />
+
 -   package `forcats`
 -   change levels, order...
 
