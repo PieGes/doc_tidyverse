@@ -110,6 +110,20 @@ who
     ## #   new_rel_f3544 <int>, new_rel_f4554 <int>, new_rel_f5564 <int>,
     ## #   new_rel_f65 <int>
 
+``` r
+who$coun
+```
+
+    ## Warning: Unknown column 'coun'
+
+    ## NULL
+
+``` r
+as.data.frame(who[1:5, ])$coun
+```
+
+    ## [1] "Afghanistan" "Afghanistan" "Afghanistan" "Afghanistan" "Afghanistan"
+
 tidyr
 -----
 
@@ -147,6 +161,25 @@ gather(who)
 who_long <- gather(who, group, cases, -country, -iso2, -iso3, -year)
 who_long <- na.omit(who_long)
 
+who_long
+```
+
+    ## # A tibble: 76,046 × 6
+    ##        country  iso2  iso3  year       group cases
+    ##          <chr> <chr> <chr> <int>       <chr> <int>
+    ## 1  Afghanistan    AF   AFG  1997 new_sp_m014     0
+    ## 2  Afghanistan    AF   AFG  1998 new_sp_m014    30
+    ## 3  Afghanistan    AF   AFG  1999 new_sp_m014     8
+    ## 4  Afghanistan    AF   AFG  2000 new_sp_m014    52
+    ## 5  Afghanistan    AF   AFG  2001 new_sp_m014   129
+    ## 6  Afghanistan    AF   AFG  2002 new_sp_m014    90
+    ## 7  Afghanistan    AF   AFG  2003 new_sp_m014   127
+    ## 8  Afghanistan    AF   AFG  2004 new_sp_m014   139
+    ## 9  Afghanistan    AF   AFG  2005 new_sp_m014   151
+    ## 10 Afghanistan    AF   AFG  2006 new_sp_m014   193
+    ## # ... with 76,036 more rows
+
+``` r
 ## long to wide
 spread(who_long, key = group, value = cases)
 ```
@@ -186,11 +219,11 @@ spread(who_long, key = group, value = cases)
 
 ``` r
 ## separate
-separate(who_long, col = group, sep = "_", into = c("new", "pos", "patient"))
+separate(who_long, col = group, sep = "_", into = c("new", "diag", "patient"))
 ```
 
     ## # A tibble: 76,046 × 8
-    ##        country  iso2  iso3  year   new   pos patient cases
+    ##        country  iso2  iso3  year   new  diag patient cases
     ## *        <chr> <chr> <chr> <int> <chr> <chr>   <chr> <int>
     ## 1  Afghanistan    AF   AFG  1997   new    sp    m014     0
     ## 2  Afghanistan    AF   AFG  1998   new    sp    m014    30
@@ -205,7 +238,7 @@ separate(who_long, col = group, sep = "_", into = c("new", "pos", "patient"))
     ## # ... with 76,036 more rows
 
 ``` r
-who_long <- separate(who_long, col = group, sep = "_", into = c("new", "pos", "patient"), remove = FALSE)
+who_long <- separate(who_long, col = group, sep = "_", into = c("new", "diag", "patient"), remove = FALSE)
 ```
 
 Data manipulation
@@ -238,7 +271,7 @@ filter(who_long, year <= 2000)
 ```
 
     ## # A tibble: 13,288 × 9
-    ##        country  iso2  iso3  year       group   new   pos patient cases
+    ##        country  iso2  iso3  year       group   new  diag patient cases
     ##          <chr> <chr> <chr> <int>       <chr> <chr> <chr>   <chr> <int>
     ## 1  Afghanistan    AF   AFG  1997 new_sp_m014   new    sp    m014     0
     ## 2  Afghanistan    AF   AFG  1998 new_sp_m014   new    sp    m014    30
@@ -257,7 +290,7 @@ filter(who_long, year <= 2000, country == "Afghanistan")
 ```
 
     ## # A tibble: 56 × 9
-    ##        country  iso2  iso3  year        group   new   pos patient cases
+    ##        country  iso2  iso3  year        group   new  diag patient cases
     ##          <chr> <chr> <chr> <int>        <chr> <chr> <chr>   <chr> <int>
     ## 1  Afghanistan    AF   AFG  1997  new_sp_m014   new    sp    m014     0
     ## 2  Afghanistan    AF   AFG  1998  new_sp_m014   new    sp    m014    30
@@ -276,7 +309,7 @@ arrange(who_long, cases)
 ```
 
     ## # A tibble: 76,046 × 9
-    ##        country  iso2  iso3  year       group   new   pos patient cases
+    ##        country  iso2  iso3  year       group   new  diag patient cases
     ##          <chr> <chr> <chr> <int>       <chr> <chr> <chr>   <chr> <int>
     ## 1  Afghanistan    AF   AFG  1997 new_sp_m014   new    sp    m014     0
     ## 2      Albania    AL   ALB  1995 new_sp_m014   new    sp    m014     0
@@ -295,7 +328,7 @@ arrange(who_long, desc(cases))
 ```
 
     ## # A tibble: 76,046 × 9
-    ##    country  iso2  iso3  year         group   new   pos patient  cases
+    ##    country  iso2  iso3  year         group   new  diag patient  cases
     ##      <chr> <chr> <chr> <int>         <chr> <chr> <chr>   <chr>  <int>
     ## 1    India    IN   IND  2007  new_sn_m3544   new    sn   m3544 250051
     ## 2    India    IN   IND  2007  new_sn_f3544   new    sn   f3544 148811
@@ -352,7 +385,7 @@ select(who_long, -group)
 ```
 
     ## # A tibble: 76,046 × 8
-    ##        country  iso2  iso3  year   new   pos patient cases
+    ##        country  iso2  iso3  year   new  diag patient cases
     ## *        <chr> <chr> <chr> <int> <chr> <chr>   <chr> <int>
     ## 1  Afghanistan    AF   AFG  1997   new    sp    m014     0
     ## 2  Afghanistan    AF   AFG  1998   new    sp    m014    30
@@ -370,19 +403,19 @@ select(who_long, -group)
 select(who_long, starts_with("p"))
 ```
 
-    ## # A tibble: 76,046 × 2
-    ##      pos patient
-    ## *  <chr>   <chr>
-    ## 1     sp    m014
-    ## 2     sp    m014
-    ## 3     sp    m014
-    ## 4     sp    m014
-    ## 5     sp    m014
-    ## 6     sp    m014
-    ## 7     sp    m014
-    ## 8     sp    m014
-    ## 9     sp    m014
-    ## 10    sp    m014
+    ## # A tibble: 76,046 × 1
+    ##    patient
+    ## *    <chr>
+    ## 1     m014
+    ## 2     m014
+    ## 3     m014
+    ## 4     m014
+    ## 5     m014
+    ## 6     m014
+    ## 7     m014
+    ## 8     m014
+    ## 9     m014
+    ## 10    m014
     ## # ... with 76,036 more rows
 
 ``` r
@@ -390,7 +423,7 @@ mutate(who_long, log_cases = log(1 + cases), cases2 = exp(log_cases) - 1)
 ```
 
     ## # A tibble: 76,046 × 11
-    ##        country  iso2  iso3  year       group   new   pos patient cases
+    ##        country  iso2  iso3  year       group   new  diag patient cases
     ##          <chr> <chr> <chr> <int>       <chr> <chr> <chr>   <chr> <int>
     ## 1  Afghanistan    AF   AFG  1997 new_sp_m014   new    sp    m014     0
     ## 2  Afghanistan    AF   AFG  1998 new_sp_m014   new    sp    m014    30
@@ -530,6 +563,7 @@ who_long %>% group_by(country) %>% summarise(number = n(), m = mean(cases))
     ## # ... with 209 more rows
 
 ``` r
+## summarise(group_by(who_long, country), number = n(), m = mean(cases))
 who_long %>% 
     filter(year <= 2000) %>% 
     group_by(country) %>% 
@@ -859,6 +893,8 @@ Dates
 
 Factors
 -------
+
+<img src="images/forcats.png" width="100px" style="display: block; margin: auto;" />
 
 -   package `forcats`
 -   change levels, order...
