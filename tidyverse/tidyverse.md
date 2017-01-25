@@ -649,6 +649,9 @@ iris %>% map_if(is.numeric, mean)
     ## [145] virginica  virginica  virginica  virginica  virginica  virginica 
     ## Levels: setosa versicolor virginica
 
+-   `flatten`
+-   `transpose`
+
 Data visualisation
 ------------------
 

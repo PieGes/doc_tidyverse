@@ -2,13 +2,12 @@
 title: "tidyverse"
 author: "Pierre Gestraud"
 output:
-  github_document: default
   html_document: default
+  github_document: default
   html_notebook: default
-  ioslides_presentation: default
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, include = TRUE, fig.align = "center", out.width = "600px")
 require(tidyverse)
 require(broom)
