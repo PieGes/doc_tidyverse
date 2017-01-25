@@ -2,16 +2,9 @@
 title: "tidyverse"
 author: "Pierre Gestraud"
 output:
-<<<<<<< HEAD
   html_document: default
   github_document: default
   html_notebook: default
-=======
-  html_notebook: default
-  html_document: default
-  github_document: default
-  ioslides_presentation: default
->>>>>>> 717fe73804e99e49a231f2dd60627cfdb0144e15
 ---
 
 ```{r setup, include = FALSE}
