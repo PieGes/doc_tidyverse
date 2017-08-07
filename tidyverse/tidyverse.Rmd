@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE, include = TRUE, fig.align = "center", out.wid
 require(tidyverse)
 require(broom)
 require(modelr)
+require(forcats)
 require(gapminder)
 ```
 
@@ -450,8 +451,8 @@ who_long %>%
     summarise(number = n(), m = mean(cases))
 ```
 
-* `magrittr` gives to LHS function the result of RHS as first argument
-* use `.` to put RHS result somewhere else
+* `magrittr` gives to RHS function the result of LHS as first argument
+* use `.` to put LHS result somewhere else
 
 ```{r}
 who_long <- mutate(who_long, gender = substr(patient, 1, 1))
@@ -459,8 +460,11 @@ who_long %>% lm(cases ~ gender, data = .)
 ```
 
 
+## Iterations - purrr
 
-## purrr
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/rstudio-hex-purrr.png")
+```
 
 * `purrr` works on lists
 * family of `map` functions replace `lapply` 
@@ -470,8 +474,9 @@ who_long %>% lm(cases ~ gender, data = .)
 iris %>% select(-Species) %>% map(mean)
 iris %>% select(-Species) %>% map_df(mean)
 iris %>% select(-Species) %>% map_dbl(mean)
-iris %>% map_if(is.numeric, mean)
 ```
+
+
 
 * `flatten`
 * `transpose`
@@ -578,6 +583,27 @@ gap_by_country %>%
 
 # Data type specific packages
 
+## Factors
+
+
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/forcats.png")
+```
+
+* package `forcats`
+* change order of levels
+* change value of levels
+* add new levels
+
+```{r}
+f <- factor(c("b", "b", "a", "c", "c", "c"))
+fct_inorder(f) ## levels by order of appearance
+fct_infreq(f) ## levels by order of frequency
+fct_relevel(f, "b", "a")  ## manual order
+```
+
+
+
 ## Strings
 
 ```{r, out.width = "100px", fig.align = "center", echo = FALSE}
@@ -586,7 +612,14 @@ knitr::include_graphics("images/RStudio_Hex_stringr.png")
 
 * package `stringr`
 * enhances base functions for strings manipulations
+* built on `stringi`
 * functions `str_`*
+* `str_detect(x, pattern)` tells you if there’s any match to the pattern
+* `str_count(x, pattern)` counts the number of patterns.
+* `str_subset(x, pattern)` extracts the matching components.
+* `str_locate(x, pattern)` gives the position of the match.
+* ...
+
 
 ## Dates
 
@@ -598,17 +631,13 @@ knitr::include_graphics("images/RStudio_Hex_lubridate.png")
 - enhances base functions for dates and times manipulations
 - `ymd`, `year`, `month`, `day`, `round_date`, `floor_date`
 
-## Factors
 
-
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
-knitr::include_graphics("images/forcats.png")
-```
-
-* package `forcats`
-* change levels, order...
 
 ## A package to rule them all
+
+```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/rstudio-hex-tidyverse.png")
+```
 
 - package `tidyverse`
 - install all packages of tidyverse
@@ -618,3 +647,10 @@ knitr::include_graphics("images/forcats.png")
 
 - R4ds (http://r4ds.had.co.nz/)
 - rstudio cheatsheet
+
+
+
+
+# TODO
+
+- purrr
