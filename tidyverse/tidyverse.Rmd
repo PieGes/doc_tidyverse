@@ -2,7 +2,12 @@
 title: "tidyverse"
 author: "Pierre Gestraud"
 output:
-  html_document: default
+  html_document: 
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: united
+    toc_float: true
   github_document: default
   html_notebook: default
 ---
@@ -16,7 +21,7 @@ require(gapminder)
 ```
 
 
-## tidyverse
+# tidyverse
 
 * `tidyverse` is a suite of packages that follow tidy philosophy
 * initiated by Hadley Wickham
@@ -31,7 +36,7 @@ Packages in tidyverse:
 
 Warning: tidyverse function use mainly NSE (unquoted expressions)
 
-### Tidy data
+## Tidy data
 
 * each variable in the data set is placed in its own column
 * each observation in the data set is placed in its own row
@@ -43,7 +48,7 @@ knitr::include_graphics("images/tidy-1.png")
 
 *Tidy Data, Hadley Wickham, JSS 2014*
 
-### Tidy APIs
+## Tidy APIs
 
 Functions should be **consistent** and  **readable**
 
@@ -55,13 +60,13 @@ Functions should be **consistent** and  **readable**
 - Runs fast (use `RCPP`)    
 
 
-## Data science workflow
+# Data science workflow
 
 ```{r, echo = FALSE}
 knitr::include_graphics("images/data-science.png")
 ```
 
-## Data wrangling
+# Data wrangling
 
 ```{r, echo = FALSE}
 knitr::include_graphics("images/data-science-wrangle.png")
@@ -168,7 +173,7 @@ who_long <- separate(who_long, col = group, sep = "_", into = c("new", "diag", "
 ```
 
 
-## Data manipulation
+## Data manipulation - dplyr
 
 ```{r, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/RStudio_Hex_dplyr.png")
@@ -176,8 +181,6 @@ knitr::include_graphics("images/RStudio_Hex_dplyr.png")
 
 - package `dplyr`
 - implements grammar of data manipulation
-
-## dplyr
 
 Single table verbs: 
 
@@ -188,7 +191,7 @@ Single table verbs:
 * `transmute`
 * `summarise`
 
-Apply operations by group with `group_by`
+Apply operations by group with `group_by`.
 
 Two-table verbs:
 
@@ -367,25 +370,62 @@ Columns can be selected in `summarise` as in `select` with the helpers functions
 
 `dplyr` verbs can be used on a grouped data frame, allowing to perform operations separately on chunks of data. 
 
-
+`group_by` defines the grouping variable(s).
 
 ```{r}
-who_long <- mutate(who_long, gender = substr(patient, 1, 1))
-
 who_long_by_country <- group_by(who_long, country)
-summarise(who_long_by_country, m = mean(cases))
-summarise(who_long_by_country, m = mean(cases), number = n())
-summarise(who_long_by_country, m = mean(cases), log_mean = log(m))
-
-who_long_by_country_gender <- group_by(who_long, country, gender)
-summarise(who_long_by_country_gender, m = mean(cases))
-
+who_long_by_country
 ```
+
+Summarising data by country:
+
+```{r}
+summarise(who_long_by_country, mean_cases = mean(cases), number = n())
+```
+
+Grouping on several variables:
+
+```{r}
+who_long_by_country_year <- group_by(who_long, country, year)
+summarise(who_long_by_country_year, mean_cases = mean(cases))
+```
+
+
+Grouping can be cancelled with `ungroup`.
+
+```{r}
+ungroup(who_long_by_country)
+```
+
 
 ### Two-tables verbs
 
+Family of functions similar to `base::merge`.
 
-## magrittr
+```{r, out.width = "600px", fig.align = "center", echo = FALSE}
+knitr::include_graphics("images/join-venn.png")
+```
+
+
+```{r}
+d1 <- select(who_long, country, year, cases)
+d2 <- select(who_long, country, year, iso2)
+full_join(d1, d2)
+```
+
+dplyr              | merge
+-------------------|-------------------------------------------
+`inner_join(x, y)` | `merge(x, y)`
+`left_join(x, y)`  | `merge(x, y, all.x = TRUE)`
+`right_join(x, y)` | `merge(x, y, all.y = TRUE)`,
+`full_join(x, y)`  | `merge(x, y, all.x = TRUE, all.y = TRUE)`
+
+
+
+- `semi_join(x, y)` keeps all observations in x that have a match in y.
+- `anti_join(x, y)` drops all observations in x that have a match in y
+
+## Programming - magrittr
 
 "Ceci n'est pas un pipe"
 
@@ -414,8 +454,11 @@ who_long %>%
 * use `.` to put RHS result somewhere else
 
 ```{r}
+who_long <- mutate(who_long, gender = substr(patient, 1, 1))
 who_long %>% lm(cases ~ gender, data = .)
 ```
+
+
 
 ## purrr
 
@@ -433,7 +476,7 @@ iris %>% map_if(is.numeric, mean)
 * `flatten`
 * `transpose`
 
-## Data visualisation
+# Data visualisation
 
 * `ggplot2` 
 * perfectly integrated in workflow
@@ -446,7 +489,7 @@ who_long %>%
     ggplot(aes(x = year, y = m, group = country)) + geom_line()
 ```
 
-## Model
+# Model
 
 ```{r, out.width = "600px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/data-science-model.png")
@@ -533,7 +576,7 @@ gap_by_country %>%
     ggplot(aes(x = continent, y = estimate)) + geom_boxplot()
 ```
 
-## Data type specific packages
+# Data type specific packages
 
 ## Strings
 
@@ -571,7 +614,7 @@ knitr::include_graphics("images/forcats.png")
 - install all packages of tidyverse
 - when loaded, attach only some packages
 
-## Ressources
+# Ressources
 
 - R4ds (http://r4ds.had.co.nz/)
 - rstudio cheatsheet
