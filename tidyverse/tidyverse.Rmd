@@ -270,7 +270,7 @@ select(who_long, country:year) ## select columns by range on name
 select(who_long, country, number = cases, year) ## select and rename column
 ```
 
-Columns with `-` are dropped.
+Columns preceded by `-` are dropped.
 
 ```{r}
 select(who_long, -group)
@@ -312,13 +312,65 @@ rename_all(who_long, toupper) ## rename all variables to upper case
 mutate(who_long, log_cases = log(1 + cases))
 ```
 
+`mutate` can directly use new columns.
 
+```{r}
+mutate(who_long, log_cases = log(1 + cases), log_sqrt_cases = sqrt(log_cases))
+```
+
+Scoped mutation and transmuation.
+
+- `mutate_if`
+- `mutate_at`
+- `mutate_all`
+
+```{r}
+mutate_if(who_long, is.character, toupper)
+```
+
+#### Summarise columns
+
+`summarise` computes a single value. More usefull on grouped data (see later).
 
 ```{r}
 summarise(who_long, m = mean(cases))
+```
 
+Usefull functions:
+
+- `n`: count
+- `n_distinct`: equivalent to `length(unique())`
+
+```{r}
+summarise(who_long, n_obs = n(), n_country = n_distinct(country))
+```
+
+Scoped summary:
+
+- summarise_all
+- summarise_at
+- summarise_if
+
+```{r}
+summarise_if(who_long, is.numeric, mean) ## compute mean for every numeric column
+```
+
+Multiple functions can be given to `summarise` as list.
+
+```{r}
+summarise_if(who_long, is.numeric, list(mea = mean, med = median, v = var))
+```
+
+Columns can be selected in `summarise` as in `select` with the helpers functions (`starts_with`, `contains`...)
+
+### Grouped operations
+
+`dplyr` verbs can be used on a grouped data frame, allowing to perform operations separately on chunks of data. 
+
+
+
+```{r}
 who_long <- mutate(who_long, gender = substr(patient, 1, 1))
-
 
 who_long_by_country <- group_by(who_long, country)
 summarise(who_long_by_country, m = mean(cases))
@@ -330,7 +382,7 @@ summarise(who_long_by_country_gender, m = mean(cases))
 
 ```
 
-
+### Two-tables verbs
 
 
 ## magrittr
