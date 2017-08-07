@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE, include = TRUE, fig.align = "center", out.width = "600px")
+knitr::opts_chunk$set(echo = TRUE, include = TRUE, fig.align = "center", out.width = "600px", cache = TRUE, autodep = TRUE)
 require(tidyverse)
 require(broom)
 require(modelr)
@@ -20,13 +20,16 @@ require(gapminder)
 
 * `tidyverse` is a suite of packages that follow tidy philosophy
 * initiated by Hadley Wickham
+* http://tidyverse.org/
 
 Packages in tidyverse:
 
-- Core packages: ggplot2, dplyr, tidyr, readr, purrr, tibble
-- Specialized data manipulation: hms, stringr, lubridate, forcats
-- Data import: DBI, haven, httr, jsonlite, readxl, rvest, xml2
-- Modeling: modelr, broom
+- Core packages: `ggplot2`, `dplyr`, `tidyr`, `readr`, `purrr`, `tibble`
+- Specialized data manipulation: `hms`, `stringr`, `lubridate`, `forcats`
+- Data import: `DBI`, `feather`, `haven`, `httr`, `jsonlite`, `readxl`, `rvest`, `xml2`
+- Modeling: `modelr`, `broom`
+
+Warning: tidyverse function use mainly NSE (unquoted expressions)
 
 ### Tidy data
 
@@ -71,44 +74,76 @@ knitr::include_graphics("images/RStudio_Hex_readr.png")
 ```
 
 * package `readr`
-* `read_table`, `read_csv`, `read_delim`
-* compared to base functions, `readr` is 10x faster
+* `read_table`, `read_csv`, `read_delim`...
+* compared to base functions, `readr` is much faster
 * characters are never automatically converted to factors (i.e. no more stringsAsFactors = FALSE!)
 * column names are left
 * row names are never set
 * create tibbles
 
+
+```{r}
+## write temporary file
+tmp <- tempfile()
+invisible(replicate(100,write.table(gapminder, file = tmp, append = TRUE, sep="\t", col.names = FALSE)))
+
+```
+
+```{r}
+require(microbenchmark)
+microbenchmark(base= read.table(tmp, sep="\t"), readr =  suppressMessages(read_delim(tmp, delim="\t", progress = FALSE)))
+```
+
+
 ## tibbles
 
+* main objects when working with tiydverse 
 * package `tibble`
 * new implementation of `data.frame`
-* tibbles are main objects when working with tiydverse 
+
 
 tibbles vs data.frames:
 
 * print
-* subsetting with `$`: no partial matching, warning if access to non existing column
+* subsetting with `$`: no partial matching, warning if access to non-existing column
 * when creating, never change type of input, never change column names, never create rownames
 
 ```{r}
 colnames(who) <- gsub("newrel", "new_rel", colnames(who))
 who
 who$coun
-as.data.frame(who[1:5, ])$coun
+head(as.data.frame(who)$coun)
+```
+
+To preserve rownames, convert them to an explicit variable with `rownames_to_column`
+
+```{r}
+d <- data.frame(x=c("A", "B"), row.names = c("p1", "p2"))
+d
+as.tibble(d) 
+rownames_to_column(d)
 ```
 
 
+
+
 ## tidyr
+
+
 
 ```{r, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/RStudio_Hex_tidyr.png")
 ```
 
+Help you to create **tidy data**.
+
+* replace package `reshape2`
 * convert wide data to long (`gather`)
 * convert long data to wide (`spread`)
 * merge variables into one (`unite`)
 * split variable into several (`separate`)
-* replace package `reshape2`
+* `nest`/`unnest` 
+* `expand`, `crossing`, `nesting`
 
 ```{r, echo=FALSE}
 knitr::include_graphics("images/tidyr.jpg")
@@ -140,11 +175,11 @@ knitr::include_graphics("images/RStudio_Hex_dplyr.png")
 ```
 
 - package `dplyr`
-- grammar of data manipulation
+- implements grammar of data manipulation
 
 ## dplyr
 
-Verbs: 
+Single table verbs: 
 
 * `arrange`
 * `filter`
@@ -152,26 +187,134 @@ Verbs:
 * `mutate`
 * `transmute`
 * `summarise`
-* `do`
 
 Apply operations by group with `group_by`
 
-Join tables (`full_join`, `right_join`, `left_join`, `inner_join`)
+Two-table verbs:
+
+* Join tables (`full_join`, `right_join`, `left_join`, `inner_join`, `anti_join`)
+
+### Single table verbs
+
+#### Sort table rows with arrange
+
+
+Sort rows according to **one variable**.
+
+```{r}
+arrange(who_long, cases)
+```
+
+Sort rows according to **several variables**. Sorting variables are separated by a comma, order of variables matters.
+
+```{r}
+arrange(who_long, cases, year)
+arrange(who_long, year, cases)
+```
+
+To sort rows in **decreasing** order, use `desc`.
+
+```{r}
+arrange(who_long, desc(cases), year)
+```
+
+
+
+#### Filter rows  
+
+`filter` is equivalent to `base::subset`
 
 ```{r}
 filter(who_long, year <= 2000)
-filter(who_long, year <= 2000, country == "Afghanistan")
+```
 
-arrange(who_long, cases)
-arrange(who_long, desc(cases))
+Multiple predicates separated by comma considered as `&`.
 
-select(who_long, country, cases, year)
-select(who_long, country, number = cases, year)
+```{r}
+filter(who_long, year <= 2000, country == "Afghanistan") 
+## same as 
+## filter(who_long, year <= 2000 & country == "Afghanistan") 
+```
+
+Or predicates separated by `|`.
+
+```{r}
+filter(who_long, country == "Palau" | cases == 230)
+```
+
+Usefull filter functions:
+
+- `between`: shortcut for `x >= left & x <= right`
+
+```{r}
+filter(who_long, between(year, 1998, 2000))
+```
+
+- `near`: `==` with tolerance 
+
+- `slice`: select rows by position
+
+```{r}
+slice(who_long, 10:15)
+```
+
+####  Columns selection and renaming
+
+
+`select` allows to keep variables in a tibble. 
+
+```{r}
+select(who_long, country, cases, year) ## select columns by name
+select(who_long, 2, 5) ## select columns by position
+select(who_long, country:year) ## select columns by range on name
+select(who_long, country, number = cases, year) ## select and rename column
+```
+
+Columns with `-` are dropped.
+
+```{r}
 select(who_long, -group)
-select(who_long, starts_with("p"))
+```
 
-mutate(who_long, log_cases = log(1 + cases), cases2 = exp(log_cases) - 1)
+Special functions usefull in select:
 
+- `starts_with`, `ends_with`, `contains`: stars, ends or contains a string
+- `matches`: matches a regular expression
+
+```{r}
+select(who_long, starts_with("p")) ## starts_with string
+select(who_long, contains("iso")) ## contains string
+select(who_long, matches("r$")) ## regexp
+```
+
+Scoped selection and renaming. 
+
+- `select_all` / `rename_all`: all variables
+- `select_if` / `rename_if`: variables matching a predicate
+- `select_at` / `rename_at`: som variables
+
+
+```{r}
+select_if(who_long, is.numeric)
+```
+
+
+```{r}
+rename_all(who_long, toupper) ## rename all variables to upper case
+```
+
+
+#### Create new columns
+
+`mutate` adds new columns, `transmute` adds new columns and drop existing.
+
+```{r}
+mutate(who_long, log_cases = log(1 + cases))
+```
+
+
+
+```{r}
 summarise(who_long, m = mean(cases))
 
 who_long <- mutate(who_long, gender = substr(patient, 1, 1))
@@ -186,6 +329,9 @@ who_long_by_country_gender <- group_by(who_long, country, gender)
 summarise(who_long_by_country_gender, m = mean(cases))
 
 ```
+
+
+
 
 ## magrittr
 
@@ -222,7 +368,7 @@ who_long %>% lm(cases ~ gender, data = .)
 ## purrr
 
 * `purrr` works on lists
-* family of `map` functions replace `apply` 
+* family of `map` functions replace `lapply` 
 * control over output type
 
 ```{r}
