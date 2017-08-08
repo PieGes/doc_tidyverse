@@ -551,12 +551,14 @@ l1 <- list(a = c(1, 2), b = 3, c = c("aa", "bb", "cc"))
 imap_chr(l1, ~paste(.y, length(.x)))
 ```
 
+### Miscellanous functions in purrr
 
-* invoke
-* `flatten`
-* `transpose`
-* compose
-* reduce / accumulate
+* `invoke`: wrapper around `do.call`
+* `flatten`: removes level hierarchy (unlist)
+* `transpose`: transposes levels hierarchy
+* `compose`: creates functions by composition
+* `reduce` / `accumulate` : apply binary function over elements
+
 
 # Data visualisation
 
@@ -605,15 +607,24 @@ And for bioinformatics? Use `biobroom`! (https://www.bioconductor.org/packages/r
 * package `modelr` to work with models and data.frame
 * `add_predictions`
 * `add_residuals`
+* handles partitioning and sampling
+* model quality metrics
+* create grid of points
+
+
+# Many models
+
+By combining all pieces of tidyverse together, we can create complex and tidy pipelines.
+
+## List-columns
+
+A key feature of data.frame and tibble objects is their ability to store any type of data in their columns, for instance lists.
 
 ```{r}
-iris %>% add_residuals(mod) %>% add_predictions(mod) %>% head
+tibble(x = 1:2, y = list(2:3, letters[1:5]))
 ```
 
 
-## Many models
-
-* create a nested data.frame
 
 ```{r}
 gap_by_country <- gapminder %>% 
