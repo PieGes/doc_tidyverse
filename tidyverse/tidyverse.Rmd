@@ -2,18 +2,26 @@
 title: "tidyverse"
 author: "Pierre Gestraud"
 output:
-  html_document: 
-    toc: true
-    toc_depth: 3
-    number_sections: true
+  html_document:
+    highlight: pygments
+    number_sections: yes
     theme: united
-    toc_float: true
+    toc: yes
+    toc_float: yes
   github_document: default
   html_notebook: default
+  pdf_document:
+    number_sections: yes
+    toc: yes
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE, include = TRUE, fig.align = "center", out.width = "600px", cache = TRUE, autodep = TRUE)
+knitr::opts_chunk$set(echo = TRUE, 
+                      include = TRUE, 
+                      comment = NA,
+                      fig.align = "center", 
+                      out.width = "600px", 
+                      cache = TRUE, autodep = FALSE)
 require(tidyverse)
 require(broom)
 require(modelr)
@@ -460,26 +468,95 @@ who_long %>% lm(cases ~ gender, data = .)
 ```
 
 
-## Iterations - purrr
+## Iterations and functionnal programming - purrr
 
 ```{r, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/rstudio-hex-purrr.png")
 ```
 
-* `purrr` works on lists
-* family of `map` functions replace `lapply` 
-* control over output type
+`purrr` enhances R capabilities of functionnal programming by providing tools to apply functions on vectors and lists. The core of `purrr` is the `map` family, similar to `base::lapply` with some advantages:
+
+- first argument is always the data
+- purrr functions are type stable (type of output is controlled)
+- map functions accept function, formulas (used for succinctly generating anonymous functions), a character vector (used to extract components by name), or a numeric vector (used to extract by position).
+
+
+
+### map family
+
+`map` transforms each element of its input with a function. The suffix defines the output type. 
+
 
 ```{r}
 iris %>% select(-Species) %>% map(mean)
 iris %>% select(-Species) %>% map_df(mean)
 iris %>% select(-Species) %>% map_dbl(mean)
+iris %>% select(-Species) %>% map_chr(mean)
+```
+
+Provide formula for anonymous function.
+
+```{r}
+1:10 %>% map_dbl(~sqrt(.) + log(.))
+```
+
+Extract by name or position.
+
+```{r}
+l1 <- list(list(a = 1L), list(a = NA, b = 2L), list(b = 3L))
+map(l1, 1)
+map(l1, "b")
+## same as 
+lapply(l1, "[", 1)
+lapply(l1, "[", "b")
+```
+
+Build pipeline with several steps
+
+```{r}
+iris_list <- iris %>% split(.$Species) ## create list with species separated
+iris_list %>% 
+    map(~lm(Sepal.Length ~ Petal.Length, data = .)) %>% 
+    map(summary) %>% 
+    map_dbl("r.squared")
+```
+
+`walk` is similar to `map` but is used for its side-effect (e.g. printing, ploting, file writing)
+
+
+### Iterates over several vectors
+
+`map` iterates over a single vector. To apply a function on elements of several vectors use `map2` and `pmap`
+
+Two vectors
+
+```{r}
+v1 <- rnorm(10)
+v2 <- rnorm(10)
+map2_dbl(v1, v2, ~ .x+.y)
+```
+
+Several vectors
+
+```{r}
+v3 <- rnorm(10)
+pmap(list(v1, v2, v3), sum)
 ```
 
 
+Iterates over a vector and its names with `imap`.
 
+```{r}
+l1 <- list(a = c(1, 2), b = 3, c = c("aa", "bb", "cc"))
+imap_chr(l1, ~paste(.y, length(.x)))
+```
+
+
+* invoke
 * `flatten`
 * `transpose`
+* compose
+* reduce / accumulate
 
 # Data visualisation
 
@@ -499,6 +576,7 @@ who_long %>%
 ```{r, out.width = "600px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/data-science-model.png")
 ```
+
 
 ## broom
 
@@ -631,8 +709,6 @@ knitr::include_graphics("images/RStudio_Hex_lubridate.png")
 - enhances base functions for dates and times manipulations
 - `ymd`, `year`, `month`, `day`, `round_date`, `floor_date`
 
-
-
 ## A package to rule them all
 
 ```{r, out.width = "100px", fig.align = "center", echo = FALSE}
@@ -646,7 +722,7 @@ knitr::include_graphics("images/rstudio-hex-tidyverse.png")
 # Ressources
 
 - R4ds (http://r4ds.had.co.nz/)
-- rstudio cheatsheet
+- rstudio cheatsheets
 
 
 
