@@ -51,7 +51,7 @@ Warning: tidyverse function use mainly NSE (unquoted expressions)
 * each observation in the data set is placed in its own row
 * each value is placed in its own cell
 
-```{r, echo = FALSE}
+```{r tidy_data, echo = FALSE}
 knitr::include_graphics("images/tidy-1.png")
 ```
 
@@ -71,7 +71,7 @@ Functions should be **consistent** and  **readable**
 
 # Data science workflow
 
-```{r, echo = FALSE}
+```{r workflow, echo = FALSE}
 knitr::include_graphics("images/data-science.png")
 ```
 
@@ -83,7 +83,7 @@ knitr::include_graphics("images/data-science-wrangle.png")
 
 ## Data import
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r readr_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/RStudio_Hex_readr.png")
 ```
 
@@ -96,16 +96,16 @@ knitr::include_graphics("images/RStudio_Hex_readr.png")
 * create tibbles
 
 
-```{r}
+```{r temp_file}
 ## write temporary file
 tmp <- tempfile()
 invisible(replicate(100,write.table(gapminder, file = tmp, append = TRUE, sep="\t", col.names = FALSE)))
 
 ```
 
-```{r}
+```{r comp_read}
 require(microbenchmark)
-microbenchmark(base= read.table(tmp, sep="\t"), readr =  suppressMessages(read_delim(tmp, delim="\t", progress = FALSE)))
+microbenchmark(base = read.table(tmp, sep="\t"), readr =  suppressMessages(read_delim(tmp, delim="\t", progress = FALSE)))
 ```
 
 
@@ -122,7 +122,7 @@ tibbles vs data.frames:
 * subsetting with `$`: no partial matching, warning if access to non-existing column
 * when creating, never change type of input, never change column names, never create rownames
 
-```{r}
+```{r tibble}
 colnames(who) <- gsub("newrel", "new_rel", colnames(who))
 who
 who$coun
@@ -131,8 +131,8 @@ head(as.data.frame(who)$coun)
 
 To preserve rownames, convert them to an explicit variable with `rownames_to_column`
 
-```{r}
-d <- data.frame(x=c("A", "B"), row.names = c("p1", "p2"))
+```{r tibble_rowname}
+d <- data.frame(x = c("A", "B"), row.names = c("p1", "p2"))
 d
 as.tibble(d) 
 rownames_to_column(d)
@@ -145,7 +145,7 @@ rownames_to_column(d)
 
 
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r tidyr_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/RStudio_Hex_tidyr.png")
 ```
 
@@ -159,11 +159,11 @@ Help you to create **tidy data**.
 * `nest`/`unnest` 
 * `expand`, `crossing`, `nesting`
 
-```{r, echo=FALSE}
+```{r tidyr, echo=FALSE}
 knitr::include_graphics("images/tidyr.jpg")
 ```
 
-```{r}
+```{r spread_gather}
 ## wide to long
 gather(who)
 
@@ -184,7 +184,7 @@ who_long <- separate(who_long, col = group, sep = "_", into = c("new", "diag", "
 
 ## Data manipulation - dplyr
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r dplyr_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/RStudio_Hex_dplyr.png")
 ```
 
@@ -213,20 +213,20 @@ Two-table verbs:
 
 Sort rows according to **one variable**.
 
-```{r}
+```{r arrange}
 arrange(who_long, cases)
 ```
 
 Sort rows according to **several variables**. Sorting variables are separated by a comma, order of variables matters.
 
-```{r}
+```{r arrange_2}
 arrange(who_long, cases, year)
 arrange(who_long, year, cases)
 ```
 
 To sort rows in **decreasing** order, use `desc`.
 
-```{r}
+```{r arrange_3}
 arrange(who_long, desc(cases), year)
 ```
 
@@ -236,13 +236,13 @@ arrange(who_long, desc(cases), year)
 
 `filter` is equivalent to `base::subset`
 
-```{r}
+```{r filter}
 filter(who_long, year <= 2000)
 ```
 
 Multiple predicates separated by comma considered as `&`.
 
-```{r}
+```{r filter_2}
 filter(who_long, year <= 2000, country == "Afghanistan") 
 ## same as 
 ## filter(who_long, year <= 2000 & country == "Afghanistan") 
@@ -250,7 +250,7 @@ filter(who_long, year <= 2000, country == "Afghanistan")
 
 Or predicates separated by `|`.
 
-```{r}
+```{r filter_3}
 filter(who_long, country == "Palau" | cases == 230)
 ```
 
@@ -258,7 +258,7 @@ Usefull filter functions:
 
 - `between`: shortcut for `x >= left & x <= right`
 
-```{r}
+```{r between}
 filter(who_long, between(year, 1998, 2000))
 ```
 
@@ -266,7 +266,7 @@ filter(who_long, between(year, 1998, 2000))
 
 - `slice`: select rows by position
 
-```{r}
+```{r slice}
 slice(who_long, 10:15)
 ```
 
@@ -275,7 +275,7 @@ slice(who_long, 10:15)
 
 `select` allows to keep variables in a tibble. 
 
-```{r}
+```{r select}
 select(who_long, country, cases, year) ## select columns by name
 select(who_long, 2, 5) ## select columns by position
 select(who_long, country:year) ## select columns by range on name
@@ -284,7 +284,7 @@ select(who_long, country, number = cases, year) ## select and rename column
 
 Columns preceded by `-` are dropped.
 
-```{r}
+```{r select_2}
 select(who_long, -group)
 ```
 
@@ -293,7 +293,7 @@ Special functions usefull in select:
 - `starts_with`, `ends_with`, `contains`: stars, ends or contains a string
 - `matches`: matches a regular expression
 
-```{r}
+```{r select_3}
 select(who_long, starts_with("p")) ## starts_with string
 select(who_long, contains("iso")) ## contains string
 select(who_long, matches("r$")) ## regexp
@@ -306,12 +306,12 @@ Scoped selection and renaming.
 - `select_at` / `rename_at`: som variables
 
 
-```{r}
+```{r select_if}
 select_if(who_long, is.numeric)
 ```
 
 
-```{r}
+```{r rename_all}
 rename_all(who_long, toupper) ## rename all variables to upper case
 ```
 
@@ -320,13 +320,13 @@ rename_all(who_long, toupper) ## rename all variables to upper case
 
 `mutate` adds new columns, `transmute` adds new columns and drop existing.
 
-```{r}
+```{r mutate}
 mutate(who_long, log_cases = log(1 + cases))
 ```
 
 `mutate` can directly use new columns.
 
-```{r}
+```{r mutate_mult}
 mutate(who_long, log_cases = log(1 + cases), log_sqrt_cases = sqrt(log_cases))
 ```
 
@@ -336,7 +336,7 @@ Scoped mutation and transmuation.
 - `mutate_at`
 - `mutate_all`
 
-```{r}
+```{r mutate_if}
 mutate_if(who_long, is.character, toupper)
 ```
 
@@ -344,7 +344,7 @@ mutate_if(who_long, is.character, toupper)
 
 `summarise` computes a single value. More usefull on grouped data (see later).
 
-```{r}
+```{r summarise}
 summarise(who_long, m = mean(cases))
 ```
 
@@ -353,7 +353,7 @@ Usefull functions:
 - `n`: count
 - `n_distinct`: equivalent to `length(unique())`
 
-```{r}
+```{r summarise_n}
 summarise(who_long, n_obs = n(), n_country = n_distinct(country))
 ```
 
@@ -363,13 +363,13 @@ Scoped summary:
 - summarise_at
 - summarise_if
 
-```{r}
+```{r summarise_if}
 summarise_if(who_long, is.numeric, mean) ## compute mean for every numeric column
 ```
 
 Multiple functions can be given to `summarise` as list.
 
-```{r}
+```{r summarise_if_list}
 summarise_if(who_long, is.numeric, list(mea = mean, med = median, v = var))
 ```
 
@@ -381,20 +381,20 @@ Columns can be selected in `summarise` as in `select` with the helpers functions
 
 `group_by` defines the grouping variable(s).
 
-```{r}
+```{r group}
 who_long_by_country <- group_by(who_long, country)
 who_long_by_country
 ```
 
 Summarising data by country:
 
-```{r}
+```{r group_summarise}
 summarise(who_long_by_country, mean_cases = mean(cases), number = n())
 ```
 
 Grouping on several variables:
 
-```{r}
+```{r group_mult}
 who_long_by_country_year <- group_by(who_long, country, year)
 summarise(who_long_by_country_year, mean_cases = mean(cases))
 ```
@@ -402,7 +402,7 @@ summarise(who_long_by_country_year, mean_cases = mean(cases))
 
 Grouping can be cancelled with `ungroup`.
 
-```{r}
+```{r ungroup}
 ungroup(who_long_by_country)
 ```
 
@@ -411,12 +411,12 @@ ungroup(who_long_by_country)
 
 Family of functions similar to `base::merge`.
 
-```{r, out.width = "600px", fig.align = "center", echo = FALSE}
+```{r join_venn, out.width = "600px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/join-venn.png")
 ```
 
 
-```{r}
+```{r full_join}
 d1 <- select(who_long, country, year, cases)
 d2 <- select(who_long, country, year, iso2)
 full_join(d1, d2)
@@ -438,7 +438,7 @@ dplyr              | merge
 
 "Ceci n'est pas un pipe"
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r magrittr_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/RStudio_Hex_pipe.png")
 ```
 
@@ -446,7 +446,7 @@ knitr::include_graphics("images/RStudio_Hex_pipe.png")
 * makes code more readable
 * provides aliases (`extract`, `add`, `equals`, `set_colnames`...)
 
-```{r, out.width = "400px", fig.align = "center", echo = FALSE}
+```{r magrittr_idea, out.width = "400px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/magrittr_idea.png")
 ```
 
