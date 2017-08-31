@@ -4,6 +4,7 @@ author: "Pierre Gestraud"
 output:
   html_document:
     highlight: pygments
+    keep_md: yes
     number_sections: yes
     theme: united
     toc: yes
@@ -450,7 +451,7 @@ knitr::include_graphics("images/RStudio_Hex_pipe.png")
 knitr::include_graphics("images/magrittr_idea.png")
 ```
 
-```{r}
+```{r magrittr_ex}
 ## summarise(group_by(who_long, country), number = n(), m = mean(cases))
 who_long %>% group_by(country) %>% summarise(number = n(), m = mean(cases))
 who_long %>% 
@@ -462,7 +463,7 @@ who_long %>%
 * `magrittr` gives to RHS function the result of LHS as first argument
 * use `.` to put LHS result somewhere else
 
-```{r}
+```{r magrittr_point}
 who_long <- mutate(who_long, gender = substr(patient, 1, 1))
 who_long %>% lm(cases ~ gender, data = .)
 ```
@@ -470,7 +471,7 @@ who_long %>% lm(cases ~ gender, data = .)
 
 ## Iterations and functionnal programming - purrr
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r purrr_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/rstudio-hex-purrr.png")
 ```
 
@@ -487,22 +488,21 @@ knitr::include_graphics("images/rstudio-hex-purrr.png")
 `map` transforms each element of its input with a function. The suffix defines the output type. 
 
 
-```{r}
+```{r map_ex}
 iris %>% select(-Species) %>% map(mean)
-iris %>% select(-Species) %>% map_df(mean)
 iris %>% select(-Species) %>% map_dbl(mean)
 iris %>% select(-Species) %>% map_chr(mean)
 ```
 
 Provide formula for anonymous function.
 
-```{r}
+```{r map_anonymous}
 1:10 %>% map_dbl(~sqrt(.) + log(.))
 ```
 
 Extract by name or position.
 
-```{r}
+```{r map_extract}
 l1 <- list(list(a = 1L), list(a = NA, b = 2L), list(b = 3L))
 map(l1, 1)
 map(l1, "b")
@@ -513,7 +513,7 @@ lapply(l1, "[", "b")
 
 Build pipeline with several steps
 
-```{r}
+```{r map_pipeline}
 iris_list <- iris %>% split(.$Species) ## create list with species separated
 iris_list %>% 
     map(~lm(Sepal.Length ~ Petal.Length, data = .)) %>% 
@@ -530,7 +530,7 @@ iris_list %>%
 
 Two vectors
 
-```{r}
+```{r map2}
 v1 <- rnorm(10)
 v2 <- rnorm(10)
 map2_dbl(v1, v2, ~ .x+.y)
@@ -538,7 +538,7 @@ map2_dbl(v1, v2, ~ .x+.y)
 
 Several vectors
 
-```{r}
+```{r pmap}
 v3 <- rnorm(10)
 pmap(list(v1, v2, v3), sum)
 ```
@@ -546,7 +546,7 @@ pmap(list(v1, v2, v3), sum)
 
 Iterates over a vector and its names with `imap`.
 
-```{r}
+```{r imap}
 l1 <- list(a = c(1, 2), b = 3, c = c("aa", "bb", "cc"))
 imap_chr(l1, ~paste(.y, length(.x)))
 ```
@@ -565,7 +565,7 @@ imap_chr(l1, ~paste(.y, length(.x)))
 * `ggplot2` 
 * perfectly integrated in workflow
 
-```{r}
+```{r ggplot}
 who_long %>% 
     filter(year >= 2000) %>% 
     group_by(country, year) %>% 
@@ -575,14 +575,14 @@ who_long %>%
 
 # Model
 
-```{r, out.width = "600px", fig.align = "center", echo = FALSE}
+```{r model_image, out.width = "600px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/data-science-model.png")
 ```
 
 
 ## broom
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r broom_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/rstudio-hex-broom.png")
 ```
 
@@ -592,7 +592,7 @@ knitr::include_graphics("images/rstudio-hex-broom.png")
 * `augment`: information about observations
 * support for large number of models (`lm`, `glm`, `lme4`, `gam`, `anova`, `nls`, `kmeans`, `arima`...)
 
-```{r}
+```{r broom_base}
 mod <- lm(Sepal.Length ~ Petal.Length, data = iris)
 glance(mod)
 tidy(mod)
@@ -620,13 +620,13 @@ By combining all pieces of tidyverse together, we can create complex and tidy pi
 
 A key feature of data.frame and tibble objects is their ability to store any type of data in their columns, for instance lists.
 
-```{r}
+```{r list_col}
 tibble(x = 1:2, y = list(2:3, letters[1:5]))
 ```
 
 
 
-```{r}
+```{r nest}
 gap_by_country <- gapminder %>% 
     group_by(country, continent) %>% 
     nest
@@ -634,14 +634,14 @@ gap_by_country <- gapminder %>%
 * column data is a `list`
 
 * compute model for each country
-```{r}
+```{r nest_lm}
 gap_by_country <- gap_by_country %>% mutate(mod = map(data, ~lm(lifeExp ~ year, data = .)))
 ```
 
 * models and data are stored together
 
 * now add information about model
-```{r}
+```{r nest_model}
 gap_by_country %>% 
     mutate(glance = map(mod, glance)) %>% 
     unnest(glance) %>% 
@@ -655,14 +655,12 @@ gap_by_country %>%
 ```
 
 
-```{r}
+```{r nest_plot}
 gap_by_country %>% 
     mutate(augment = map(mod, augment)) %>% 
     unnest(augment) %>% 
     ggplot(aes(x = year, y = .fitted, group = country)) + geom_line() + facet_wrap(~continent)
-```
 
-```{r}
 gap_by_country %>% 
     mutate(tidy = map(mod, tidy)) %>% 
     unnest(tidy) %>% 
@@ -675,7 +673,7 @@ gap_by_country %>%
 ## Factors
 
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r forcats_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/forcats.png")
 ```
 
@@ -684,7 +682,7 @@ knitr::include_graphics("images/forcats.png")
 * change value of levels
 * add new levels
 
-```{r}
+```{r fct_ex}
 f <- factor(c("b", "b", "a", "c", "c", "c"))
 fct_inorder(f) ## levels by order of appearance
 fct_infreq(f) ## levels by order of frequency
@@ -695,7 +693,7 @@ fct_relevel(f, "b", "a")  ## manual order
 
 ## Strings
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r stringr_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/RStudio_Hex_stringr.png")
 ```
 
@@ -712,7 +710,7 @@ knitr::include_graphics("images/RStudio_Hex_stringr.png")
 
 ## Dates
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r lubridate_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/RStudio_Hex_lubridate.png")
 ```
 
@@ -722,7 +720,7 @@ knitr::include_graphics("images/RStudio_Hex_lubridate.png")
 
 ## A package to rule them all
 
-```{r, out.width = "100px", fig.align = "center", echo = FALSE}
+```{r tidyverse_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/rstudio-hex-tidyverse.png")
 ```
 
@@ -735,9 +733,3 @@ knitr::include_graphics("images/rstudio-hex-tidyverse.png")
 - R4ds (http://r4ds.had.co.nz/)
 - rstudio cheatsheets
 
-
-
-
-# TODO
-
-- purrr
