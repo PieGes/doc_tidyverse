@@ -1714,6 +1714,7 @@ Levels: b a c
 
 # Ressources
 
+- https://www.tidyverse.org/
 - R4ds (http://r4ds.had.co.nz/)
 - rstudio cheatsheets
 
