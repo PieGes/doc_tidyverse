@@ -1,6 +1,7 @@
 ---
 title: "tidyverse"
 author: "Pierre Gestraud"
+date: "`r Sys.Date()`"
 output:
   html_document:
     highlight: pygments
@@ -45,7 +46,7 @@ Packages in tidyverse:
 - Data import: `DBI`, `feather`, `haven`, `httr`, `jsonlite`, `readxl`, `rvest`, `xml2`
 - Modeling: `modelr`, `broom`
 
-Warning: tidyverse function use mainly NSE (unquoted expressions)
+Warning: tidyverse function use mainly NSE (unquoted expressions), or tidy evaluation
 
 ## Tidy data
 
@@ -69,8 +70,9 @@ Functions should be **consistent** and  **readable**
     * almost all functions take `data.frame` as first argument and return a `data.frame`
     * all `stringr` functions take string as first argument
 - Runs fast (use `RCPP`)    
-
-
+- A function should either compute something or do something. It should never do both.
+    
+    
 # Data science workflow
 
 ```{r workflow, echo = FALSE}
@@ -90,7 +92,7 @@ knitr::include_graphics("images/RStudio_Hex_readr.png")
 ```
 
 * package `readr`
-* `read_table`, `read_csv`, `read_delim`...
+* `read_table()`, `read_csv()`, `read_delim()`...
 * compared to base functions, `readr` is much faster
 * characters are never automatically converted to factors (i.e. no more stringsAsFactors = FALSE!)
 * column names are left
@@ -131,7 +133,7 @@ who$coun
 head(as.data.frame(who)$coun)
 ```
 
-To preserve rownames, convert them to an explicit variable with `rownames_to_column`
+To preserve rownames, convert them to an explicit variable with `rownames_to_column()`
 
 ```{r tibble_rowname}
 d <- data.frame(x = c("A", "B"), row.names = c("p1", "p2"))
@@ -154,12 +156,12 @@ knitr::include_graphics("images/RStudio_Hex_tidyr.png")
 Help you to create **tidy data**.
 
 * replace package `reshape2`
-* convert wide data to long (`gather`)
-* convert long data to wide (`spread`)
-* merge variables into one (`unite`)
-* split variable into several (`separate`)
-* `nest`/`unnest` 
-* `expand`, `crossing`, `nesting`
+* convert wide data to long (`gather()`)
+* convert long data to wide (`spread()`)
+* merge variables into one (`unite()`)
+* split variable into several (`separate()`)
+* `nest()`/`unnest()` 
+* `expand()`, `crossing()`, `nesting()`
 
 ```{r tidyr, echo=FALSE}
 knitr::include_graphics("images/tidyr.jpg")
@@ -195,18 +197,18 @@ knitr::include_graphics("images/RStudio_Hex_dplyr.png")
 
 Single table verbs: 
 
-* `arrange`
-* `filter`
-* `select`
-* `mutate`
-* `transmute`
-* `summarise`
+* `arrange()`
+* `filter()`
+* `select()`
+* `mutate()`
+* `transmute()`
+* `summarise()`
 
-Apply operations by group with `group_by`.
+Apply operations by group with `group_by()`.
 
 Two-table verbs:
 
-* Join tables (`full_join`, `right_join`, `left_join`, `inner_join`, `anti_join`)
+* Join tables (`full_join()`, `right_join()`, `left_join()`, `inner_join()`, `anti_join()`)
 
 ### Single table verbs
 
@@ -226,7 +228,7 @@ arrange(who_long, cases, year)
 arrange(who_long, year, cases)
 ```
 
-To sort rows in **decreasing** order, use `desc`.
+To sort rows in **decreasing** order, use `desc()`.
 
 ```{r arrange_3}
 arrange(who_long, desc(cases), year)
@@ -236,7 +238,7 @@ arrange(who_long, desc(cases), year)
 
 #### Filter rows  
 
-`filter` is equivalent to `base::subset`
+`filter()` is equivalent to `base::subset()`
 
 ```{r filter}
 filter(who_long, year <= 2000)
@@ -250,7 +252,7 @@ filter(who_long, year <= 2000, country == "Afghanistan")
 ## filter(who_long, year <= 2000 & country == "Afghanistan") 
 ```
 
-Or predicates separated by `|`.
+Or predicates are separated by `|`.
 
 ```{r filter_3}
 filter(who_long, country == "Palau" | cases == 230)
@@ -258,24 +260,25 @@ filter(who_long, country == "Palau" | cases == 230)
 
 Usefull filter functions:
 
-- `between`: shortcut for `x >= left & x <= right`
+- `between()`: shortcut for `x >= left & x <= right`
 
 ```{r between}
 filter(who_long, between(year, 1998, 2000))
 ```
 
-- `near`: `==` with tolerance 
+- `near()`: `==` with tolerance 
 
-- `slice`: select rows by position
+- `slice()`: select rows by position
 
 ```{r slice}
 slice(who_long, 10:15)
 ```
 
+- sample lines in table: `sample_n()`, `sample_frac()`
+
 ####  Columns selection and renaming
 
-
-`select` allows to keep variables in a tibble. 
+`select()` allows to keep variables in a tibble. 
 
 ```{r select}
 select(who_long, country, cases, year) ## select columns by name
@@ -292,8 +295,8 @@ select(who_long, -group)
 
 Special functions usefull in select:
 
-- `starts_with`, `ends_with`, `contains`: stars, ends or contains a string
-- `matches`: matches a regular expression
+- `starts_with()`, `ends_with()`, `contains()`: starts, ends or contains a string
+- `matches()`: matches a regular expression
 
 ```{r select_3}
 select(who_long, starts_with("p")) ## starts_with string
@@ -301,11 +304,6 @@ select(who_long, contains("iso")) ## contains string
 select(who_long, matches("r$")) ## regexp
 ```
 
-Scoped selection and renaming. 
-
-- `select_all` / `rename_all`: all variables
-- `select_if` / `rename_if`: variables matching a predicate
-- `select_at` / `rename_at`: som variables
 
 
 ```{r select_if}
@@ -320,31 +318,22 @@ rename_all(who_long, toupper) ## rename all variables to upper case
 
 #### Create new columns
 
-`mutate` adds new columns, `transmute` adds new columns and drop existing.
+`mutate()` adds new columns, `transmute()` adds new columns and drop existing.
 
 ```{r mutate}
 mutate(who_long, log_cases = log(1 + cases))
 ```
 
-`mutate` can directly use new columns.
+`mutate()` and `transmute()` can directly use new columns.
 
 ```{r mutate_mult}
 mutate(who_long, log_cases = log(1 + cases), log_sqrt_cases = sqrt(log_cases))
 ```
 
-Scoped mutation and transmuation.
-
-- `mutate_if`
-- `mutate_at`
-- `mutate_all`
-
-```{r mutate_if}
-mutate_if(who_long, is.character, toupper)
-```
 
 #### Summarise columns
 
-`summarise` computes a single value. More usefull on grouped data (see later).
+`summarise()` computes a single value. More usefull on grouped data (see later).
 
 ```{r summarise}
 summarise(who_long, m = mean(cases))
@@ -352,42 +341,24 @@ summarise(who_long, m = mean(cases))
 
 Usefull functions:
 
-- `n`: count
-- `n_distinct`: equivalent to `length(unique())`
+- `n()`: count
+- `n_distinct()`: equivalent to `length(unique())`
 
 ```{r summarise_n}
 summarise(who_long, n_obs = n(), n_country = n_distinct(country))
 ```
 
-Scoped summary:
-
-- summarise_all
-- summarise_at
-- summarise_if
-
-```{r summarise_if}
-summarise_if(who_long, is.numeric, mean) ## compute mean for every numeric column
-```
-
-Multiple functions can be given to `summarise` as list.
-
-```{r summarise_if_list}
-summarise_if(who_long, is.numeric, list(mea = mean, med = median, v = var))
-```
-
-Columns can be selected in `summarise` as in `select` with the helpers functions (`starts_with`, `contains`...)
-
 ### Grouped operations
 
 `dplyr` verbs can be used on a grouped data frame, allowing to perform operations separately on chunks of data. 
 
-`group_by` defines the grouping variable(s).
+`group_by()` defines the grouping variable(s).
 
 ```{r group}
 who_long_by_country <- group_by(who_long, country)
 who_long_by_country
 ```
-
+ 
 Summarising data by country:
 
 ```{r group_summarise}
@@ -402,16 +373,71 @@ summarise(who_long_by_country_year, mean_cases = mean(cases))
 ```
 
 
-Grouping can be cancelled with `ungroup`.
+Grouping can be cancelled with `ungroup()`.
 
 ```{r ungroup}
 ungroup(who_long_by_country)
 ```
 
 
+### Scoped verbs
+
+**Scoped** verbs allow to affect multiple variables at once. The suffix of the verbs gives the scopping type:
+
+* `_if` allows to pick variables based on a predicate like `is.numeric` or `is.character`
+* `_at` allows to pick variables using the same syntax as `select`
+* `_all` operates on all variables
+
+```{r df}
+df <- tibble(x1 = runif(100),
+             x2 = runif(100),
+             y = runif(100), 
+             )
+```
+
+Summarise all variables with `summarise_all()`
+
+```{r summarise_all_mean}
+summarise_all(df, mean)
+```
+
+To apply multiple functions, use `funs()`.
+
+```{r summarise_all_funs}
+summarise_all(df, funs(mean, median, var))
+```
+
+Arguments of `funs()` can have names.
+
+```{r summarise_all_funs_named}
+summarise_all(df, funs(m = mean, med = median))
+```
+
+
+To operates on specific columns, use `summarise_at()`. The selection should be wrapped in `vars()`.
+
+```{r summarise_at}
+summarise_at(df, vars(-y), mean)
+summarise_at(df, vars(starts_with("x")), mean)
+```
+
+Columns selection can be based on predicates.
+
+```{r summarise_if}
+df$g <- sample(letters[1:5], 100, replace = TRUE)
+summarise_if(df, is.numeric, mean)
+```
+
+
+Scoped grouping
+
+- `group_by_all()`
+- `group_by_at()`
+- `group_by_if()`
+
 ### Two-tables verbs
 
-Family of functions similar to `base::merge`.
+Family of functions similar to `base::merge()`.
 
 ```{r join_venn, out.width = "600px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/join-venn.png")
@@ -431,10 +457,9 @@ dplyr              | merge
 `right_join(x, y)` | `merge(x, y, all.y = TRUE)`,
 `full_join(x, y)`  | `merge(x, y, all.x = TRUE, all.y = TRUE)`
 
-
-
 - `semi_join(x, y)` keeps all observations in x that have a match in y.
 - `anti_join(x, y)` drops all observations in x that have a match in y
+
 
 ## Programming - magrittr
 
@@ -446,7 +471,7 @@ knitr::include_graphics("images/RStudio_Hex_pipe.png")
 
 * `magrittr` introduce new pipe operator: `%>%`
 * makes code more readable
-* provides aliases (`extract`, `add`, `equals`, `set_colnames`...)
+* provides aliases (`extract()`, `add()`, `equals()`, `set_colnames()`...)
 
 ```{r magrittr_idea, out.width = "400px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/magrittr_idea.png")
@@ -476,7 +501,7 @@ who_long %>% lm(cases ~ gender, data = .)
 knitr::include_graphics("images/rstudio-hex-purrr.png")
 ```
 
-`purrr` enhances R capabilities of functionnal programming by providing tools to apply functions on vectors and lists. The core of `purrr` is the `map` family, similar to `base::lapply` with some advantages:
+`purrr` enhances R capabilities of functionnal programming by providing tools to apply functions on vectors and lists. The core of `purrr` is the `map()` family, similar to `base::lapply()` with some advantages:
 
 - first argument is always the data
 - purrr functions are type stable (type of output is controlled)
@@ -486,7 +511,7 @@ knitr::include_graphics("images/rstudio-hex-purrr.png")
 
 ### map family
 
-`map` transforms each element of its input with a function. The suffix defines the output type. 
+`map()` transforms each element of its input with a function. The suffix defines the output type. 
 
 
 ```{r map_ex}
@@ -522,12 +547,12 @@ iris_list %>%
     map_dbl("r.squared")
 ```
 
-`walk` is similar to `map` but is used for its side-effect (e.g. printing, ploting, file writing)
+`walk()` is similar to `map()` but is used for its side-effect (e.g. printing, ploting, file writing)
 
 
 ### Iterates over several vectors
 
-`map` iterates over a single vector. To apply a function on elements of several vectors use `map2` and `pmap`
+`map()` iterates over a single vector. To apply a function on elements of several vectors use `map2()` and `pmap()`
 
 Two vectors
 
@@ -545,7 +570,7 @@ pmap(list(v1, v2, v3), sum)
 ```
 
 
-Iterates over a vector and its names with `imap`.
+Iterates over a vector and its names with `imap()`.
 
 ```{r imap}
 l1 <- list(a = c(1, 2), b = 3, c = c("aa", "bb", "cc"))
@@ -554,11 +579,11 @@ imap_chr(l1, ~paste(.y, length(.x)))
 
 ### Miscellanous functions in purrr
 
-* `invoke`: wrapper around `do.call`
-* `flatten`: removes level hierarchy (unlist)
-* `transpose`: transposes levels hierarchy
-* `compose`: creates functions by composition
-* `reduce` / `accumulate` : apply binary function over elements
+* `invoke()`: wrapper around `do.call()`
+* `flatten()`: removes level hierarchy (unlist)
+* `transpose()`: transposes levels hierarchy
+* `compose()`: creates functions by composition
+* `reduce()` / `accumulate()` : apply binary function over elements
 
 
 # Data visualisation
@@ -588,9 +613,10 @@ knitr::include_graphics("images/rstudio-hex-broom.png")
 ```
 
 * `broom` makes tidy data from models
-* `glance`: model summary
-* `tidy`: information about coefficients
-* `augment`: information about observations
+* 3 main functions:
+    * `glance()`: model summary
+    * `tidy()`: information about coefficients
+    * `augment()`: information about observations
 * support for large number of models (`lm`, `glm`, `lme4`, `gam`, `anova`, `nls`, `kmeans`, `arima`...)
 
 ```{r broom_base}
@@ -606,8 +632,8 @@ And for bioinformatics? Use `biobroom`! (https://www.bioconductor.org/packages/r
 ## modelr
 
 * package `modelr` to work with models and data.frame
-* `add_predictions`
-* `add_residuals`
+* `add_predictions()`
+* `add_residuals()`
 * handles partitioning and sampling
 * model quality metrics
 * create grid of points
@@ -641,7 +667,7 @@ gap_by_country <- gap_by_country %>% mutate(mod = map(data, ~lm(lifeExp ~ year, 
 
 * models and data are stored together
 
-* now add information about model
+* now add information about models
 ```{r nest_model}
 gap_by_country %>% 
     mutate(glance = map(mod, glance)) %>% 
@@ -669,7 +695,7 @@ gap_by_country %>%
     ggplot(aes(x = continent, y = estimate)) + geom_boxplot()
 ```
 
-# Data type specific packages
+# Type specific packages
 
 ## Factors
 
@@ -717,7 +743,7 @@ knitr::include_graphics("images/RStudio_Hex_lubridate.png")
 
 - package `lubridate`
 - enhances base functions for dates and times manipulations
-- `ymd`, `year`, `month`, `day`, `round_date`, `floor_date`
+- `ymd()`, `year()`, `month()`, `day()`, `round_date()`, `floor_date()`
 
 ## A package to rule them all
 

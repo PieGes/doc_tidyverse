@@ -1,5 +1,6 @@
 # tidyverse
 Pierre Gestraud  
+`r Sys.Date()`  
 
 
 
@@ -17,7 +18,7 @@ Packages in tidyverse:
 - Data import: `DBI`, `feather`, `haven`, `httr`, `jsonlite`, `readxl`, `rvest`, `xml2`
 - Modeling: `modelr`, `broom`
 
-Warning: tidyverse function use mainly NSE (unquoted expressions)
+Warning: tidyverse function use mainly NSE (unquoted expressions), or tidy evaluation
 
 ## Tidy data
 
@@ -39,8 +40,9 @@ Functions should be **consistent** and  **readable**
     * almost all functions take `data.frame` as first argument and return a `data.frame`
     * all `stringr` functions take string as first argument
 - Runs fast (use `RCPP`)    
-
-
+- A function should either compute something or do something. It should never do both.
+    
+    
 # Data science workflow
 
 <img src="images/data-science.png" width="600px" style="display: block; margin: auto;" />
@@ -54,7 +56,7 @@ Functions should be **consistent** and  **readable**
 <img src="images/RStudio_Hex_readr.png" width="100px" style="display: block; margin: auto;" />
 
 * package `readr`
-* `read_table`, `read_csv`, `read_delim`...
+* `read_table()`, `read_csv()`, `read_delim()`...
 * compared to base functions, `readr` is much faster
 * characters are never automatically converted to factors (i.e. no more stringsAsFactors = FALSE!)
 * column names are left
@@ -165,7 +167,7 @@ head(as.data.frame(who)$coun)
 [6] "Afghanistan"
 ```
 
-To preserve rownames, convert them to an explicit variable with `rownames_to_column`
+To preserve rownames, convert them to an explicit variable with `rownames_to_column()`
 
 
 ```r
@@ -213,12 +215,12 @@ rownames_to_column(d)
 Help you to create **tidy data**.
 
 * replace package `reshape2`
-* convert wide data to long (`gather`)
-* convert long data to wide (`spread`)
-* merge variables into one (`unite`)
-* split variable into several (`separate`)
-* `nest`/`unnest` 
-* `expand`, `crossing`, `nesting`
+* convert wide data to long (`gather()`)
+* convert long data to wide (`spread()`)
+* merge variables into one (`unite()`)
+* split variable into several (`separate()`)
+* `nest()`/`unnest()` 
+* `expand()`, `crossing()`, `nesting()`
 
 <img src="images/tidyr.jpg" width="600px" style="display: block; margin: auto;" />
 
@@ -345,18 +347,18 @@ who_long <- separate(who_long, col = group, sep = "_", into = c("new", "diag", "
 
 Single table verbs: 
 
-* `arrange`
-* `filter`
-* `select`
-* `mutate`
-* `transmute`
-* `summarise`
+* `arrange()`
+* `filter()`
+* `select()`
+* `mutate()`
+* `transmute()`
+* `summarise()`
 
-Apply operations by group with `group_by`.
+Apply operations by group with `group_by()`.
 
 Two-table verbs:
 
-* Join tables (`full_join`, `right_join`, `left_join`, `inner_join`, `anti_join`)
+* Join tables (`full_join()`, `right_join()`, `left_join()`, `inner_join()`, `anti_join()`)
 
 ### Single table verbs
 
@@ -432,7 +434,7 @@ arrange(who_long, year, cases)
 # ... with 76,036 more rows
 ```
 
-To sort rows in **decreasing** order, use `desc`.
+To sort rows in **decreasing** order, use `desc()`.
 
 
 ```r
@@ -460,7 +462,7 @@ arrange(who_long, desc(cases), year)
 
 #### Filter rows  
 
-`filter` is equivalent to `base::subset`
+`filter()` is equivalent to `base::subset()`
 
 
 ```r
@@ -513,7 +515,7 @@ filter(who_long, year <= 2000, country == "Afghanistan")
 ## filter(who_long, year <= 2000 & country == "Afghanistan") 
 ```
 
-Or predicates separated by `|`.
+Or predicates are separated by `|`.
 
 
 ```r
@@ -539,7 +541,7 @@ filter(who_long, country == "Palau" | cases == 230)
 
 Usefull filter functions:
 
-- `between`: shortcut for `x >= left & x <= right`
+- `between()`: shortcut for `x >= left & x <= right`
 
 
 ```r
@@ -563,9 +565,9 @@ filter(who_long, between(year, 1998, 2000))
 # ... with 6,776 more rows
 ```
 
-- `near`: `==` with tolerance 
+- `near()`: `==` with tolerance 
 
-- `slice`: select rows by position
+- `slice()`: select rows by position
 
 
 ```r
@@ -584,10 +586,11 @@ slice(who_long, 10:15)
 6 Afghanistan    AF   AFG  2011 new_sp_m014   new    sp    m014   204
 ```
 
+- sample lines in table: `sample_n()`, `sample_frac()`
+
 ####  Columns selection and renaming
 
-
-`select` allows to keep variables in a tibble. 
+`select()` allows to keep variables in a tibble. 
 
 
 ```r
@@ -700,8 +703,8 @@ select(who_long, -group)
 
 Special functions usefull in select:
 
-- `starts_with`, `ends_with`, `contains`: stars, ends or contains a string
-- `matches`: matches a regular expression
+- `starts_with()`, `ends_with()`, `contains()`: starts, ends or contains a string
+- `matches()`: matches a regular expression
 
 
 ```r
@@ -767,11 +770,6 @@ select(who_long, matches("r$")) ## regexp
 # ... with 76,036 more rows
 ```
 
-Scoped selection and renaming. 
-
-- `select_all` / `rename_all`: all variables
-- `select_if` / `rename_if`: variables matching a predicate
-- `select_at` / `rename_at`: som variables
 
 
 
@@ -822,7 +820,7 @@ rename_all(who_long, toupper) ## rename all variables to upper case
 
 #### Create new columns
 
-`mutate` adds new columns, `transmute` adds new columns and drop existing.
+`mutate()` adds new columns, `transmute()` adds new columns and drop existing.
 
 
 ```r
@@ -846,7 +844,7 @@ mutate(who_long, log_cases = log(1 + cases))
 # ... with 76,036 more rows, and 1 more variables: log_cases <dbl>
 ```
 
-`mutate` can directly use new columns.
+`mutate()` and `transmute()` can directly use new columns.
 
 
 ```r
@@ -871,37 +869,10 @@ mutate(who_long, log_cases = log(1 + cases), log_sqrt_cases = sqrt(log_cases))
 #   log_sqrt_cases <dbl>
 ```
 
-Scoped mutation and transmuation.
-
-- `mutate_if`
-- `mutate_at`
-- `mutate_all`
-
-
-```r
-mutate_if(who_long, is.character, toupper)
-```
-
-```
-# A tibble: 76,046 x 9
-       country  iso2  iso3  year       group   new  diag patient cases
-         <chr> <chr> <chr> <int>       <chr> <chr> <chr>   <chr> <int>
- 1 AFGHANISTAN    AF   AFG  1997 NEW_SP_M014   NEW    SP    M014     0
- 2 AFGHANISTAN    AF   AFG  1998 NEW_SP_M014   NEW    SP    M014    30
- 3 AFGHANISTAN    AF   AFG  1999 NEW_SP_M014   NEW    SP    M014     8
- 4 AFGHANISTAN    AF   AFG  2000 NEW_SP_M014   NEW    SP    M014    52
- 5 AFGHANISTAN    AF   AFG  2001 NEW_SP_M014   NEW    SP    M014   129
- 6 AFGHANISTAN    AF   AFG  2002 NEW_SP_M014   NEW    SP    M014    90
- 7 AFGHANISTAN    AF   AFG  2003 NEW_SP_M014   NEW    SP    M014   127
- 8 AFGHANISTAN    AF   AFG  2004 NEW_SP_M014   NEW    SP    M014   139
- 9 AFGHANISTAN    AF   AFG  2005 NEW_SP_M014   NEW    SP    M014   151
-10 AFGHANISTAN    AF   AFG  2006 NEW_SP_M014   NEW    SP    M014   193
-# ... with 76,036 more rows
-```
 
 #### Summarise columns
 
-`summarise` computes a single value. More usefull on grouped data (see later).
+`summarise()` computes a single value. More usefull on grouped data (see later).
 
 
 ```r
@@ -917,8 +888,8 @@ summarise(who_long, m = mean(cases))
 
 Usefull functions:
 
-- `n`: count
-- `n_distinct`: equivalent to `length(unique())`
+- `n()`: count
+- `n_distinct()`: equivalent to `length(unique())`
 
 
 ```r
@@ -932,45 +903,11 @@ summarise(who_long, n_obs = n(), n_country = n_distinct(country))
 1 76046       219
 ```
 
-Scoped summary:
-
-- summarise_all
-- summarise_at
-- summarise_if
-
-
-```r
-summarise_if(who_long, is.numeric, mean) ## compute mean for every numeric column
-```
-
-```
-# A tibble: 1 x 2
-      year    cases
-     <dbl>    <dbl>
-1 2006.166 570.6746
-```
-
-Multiple functions can be given to `summarise` as list.
-
-
-```r
-summarise_if(who_long, is.numeric, list(mea = mean, med = median, v = var))
-```
-
-```
-# A tibble: 1 x 6
-  year_mea cases_mea year_med cases_med   year_v  cases_v
-     <dbl>     <dbl>    <dbl>     <dbl>    <dbl>    <dbl>
-1 2006.166  570.6746     2007        26 26.49212 12565713
-```
-
-Columns can be selected in `summarise` as in `select` with the helpers functions (`starts_with`, `contains`...)
-
 ### Grouped operations
 
 `dplyr` verbs can be used on a grouped data frame, allowing to perform operations separately on chunks of data. 
 
-`group_by` defines the grouping variable(s).
+`group_by()` defines the grouping variable(s).
 
 
 ```r
@@ -995,7 +932,7 @@ who_long_by_country
 10 Afghanistan    AF   AFG  2006 new_sp_m014   new    sp    m014   193
 # ... with 76,036 more rows
 ```
-
+ 
 Summarising data by country:
 
 
@@ -1047,7 +984,7 @@ summarise(who_long_by_country_year, mean_cases = mean(cases))
 ```
 
 
-Grouping can be cancelled with `ungroup`.
+Grouping can be cancelled with `ungroup()`.
 
 
 ```r
@@ -1072,9 +1009,116 @@ ungroup(who_long_by_country)
 ```
 
 
+### Scoped verbs
+
+**Scoped** verbs allow to affect multiple variables at once. The suffix of the verbs gives the scopping type:
+
+* `_if` allows to pick variables based on a predicate like `is.numeric` or `is.character`
+* `_at` allows to pick variables using the same syntax as `select`
+* `_all` operates on all variables
+
+
+```r
+df <- tibble(x1 = runif(100),
+             x2 = runif(100),
+             y = runif(100), 
+             )
+```
+
+Summarise all variables with `summarise_all()`
+
+
+```r
+summarise_all(df, mean)
+```
+
+```
+# A tibble: 1 x 3
+         x1        x2        y
+      <dbl>     <dbl>    <dbl>
+1 0.5176257 0.4300524 0.521798
+```
+
+To apply multiple functions, use `funs()`.
+
+
+```r
+summarise_all(df, funs(mean, median, var))
+```
+
+```
+# A tibble: 1 x 9
+    x1_mean   x2_mean   y_mean x1_median x2_median  y_median     x1_var
+      <dbl>     <dbl>    <dbl>     <dbl>     <dbl>     <dbl>      <dbl>
+1 0.5176257 0.4300524 0.521798 0.5448432 0.4088083 0.5319039 0.08349438
+# ... with 2 more variables: x2_var <dbl>, y_var <dbl>
+```
+
+Arguments of `funs()` can have names.
+
+
+```r
+summarise_all(df, funs(m = mean, med = median))
+```
+
+```
+# A tibble: 1 x 6
+       x1_m      x2_m      y_m    x1_med    x2_med     y_med
+      <dbl>     <dbl>    <dbl>     <dbl>     <dbl>     <dbl>
+1 0.5176257 0.4300524 0.521798 0.5448432 0.4088083 0.5319039
+```
+
+
+To operates on specific columns, use `summarise_at()`. The selection should be wrapped in `vars()`.
+
+
+```r
+summarise_at(df, vars(-y), mean)
+```
+
+```
+# A tibble: 1 x 2
+         x1        x2
+      <dbl>     <dbl>
+1 0.5176257 0.4300524
+```
+
+```r
+summarise_at(df, vars(starts_with("x")), mean)
+```
+
+```
+# A tibble: 1 x 2
+         x1        x2
+      <dbl>     <dbl>
+1 0.5176257 0.4300524
+```
+
+Columns selection can be based on predicates.
+
+
+```r
+df$g <- sample(letters[1:5], 100, replace = TRUE)
+summarise_if(df, is.numeric, mean)
+```
+
+```
+# A tibble: 1 x 3
+         x1        x2        y
+      <dbl>     <dbl>    <dbl>
+1 0.5176257 0.4300524 0.521798
+```
+
+
+Scoped grouping
+
+- `group_by_all()`
+- `group_by_at()`
+- `group_by_if()`
+
 ### Two-tables verbs
 
-Family of functions similar to `base::merge`.
+Family of functions similar to `base::merge()`.
 
 <img src="images/join-venn.png" width="600px" style="display: block; margin: auto;" />
 
@@ -1114,10 +1158,9 @@ dplyr              | merge
 `right_join(x, y)` | `merge(x, y, all.y = TRUE)`,
 `full_join(x, y)`  | `merge(x, y, all.x = TRUE, all.y = TRUE)`
 
-
-
 - `semi_join(x, y)` keeps all observations in x that have a match in y.
 - `anti_join(x, y)` drops all observations in x that have a match in y
+
 
 ## Programming - magrittr
 
@@ -1127,7 +1170,7 @@ dplyr              | merge
 
 * `magrittr` introduce new pipe operator: `%>%`
 * makes code more readable
-* provides aliases (`extract`, `add`, `equals`, `set_colnames`...)
+* provides aliases (`extract()`, `add()`, `equals()`, `set_colnames()`...)
 
 <img src="images/magrittr_idea.png" width="400px" style="display: block; margin: auto;" />
 
@@ -1202,7 +1245,7 @@ Coefficients:
 
 <img src="images/rstudio-hex-purrr.png" width="100px" style="display: block; margin: auto;" />
 
-`purrr` enhances R capabilities of functionnal programming by providing tools to apply functions on vectors and lists. The core of `purrr` is the `map` family, similar to `base::lapply` with some advantages:
+`purrr` enhances R capabilities of functionnal programming by providing tools to apply functions on vectors and lists. The core of `purrr` is the `map()` family, similar to `base::lapply()` with some advantages:
 
 - first argument is always the data
 - purrr functions are type stable (type of output is controlled)
@@ -1212,7 +1255,7 @@ Coefficients:
 
 ### map family
 
-`map` transforms each element of its input with a function. The suffix defines the output type. 
+`map()` transforms each element of its input with a function. The suffix defines the output type. 
 
 
 
@@ -1355,12 +1398,12 @@ iris_list %>%
 0.07138289 0.56858983 0.74688439 
 ```
 
-`walk` is similar to `map` but is used for its side-effect (e.g. printing, ploting, file writing)
+`walk()` is similar to `map()` but is used for its side-effect (e.g. printing, ploting, file writing)
 
 
 ### Iterates over several vectors
 
-`map` iterates over a single vector. To apply a function on elements of several vectors use `map2` and `pmap`
+`map()` iterates over a single vector. To apply a function on elements of several vectors use `map2()` and `pmap()`
 
 Two vectors
 
@@ -1417,7 +1460,7 @@ pmap(list(v1, v2, v3), sum)
 ```
 
 
-Iterates over a vector and its names with `imap`.
+Iterates over a vector and its names with `imap()`.
 
 
 ```r
@@ -1432,11 +1475,11 @@ imap_chr(l1, ~paste(.y, length(.x)))
 
 ### Miscellanous functions in purrr
 
-* `invoke`: wrapper around `do.call`
-* `flatten`: removes level hierarchy (unlist)
-* `transpose`: transposes levels hierarchy
-* `compose`: creates functions by composition
-* `reduce` / `accumulate` : apply binary function over elements
+* `invoke()`: wrapper around `do.call()`
+* `flatten()`: removes level hierarchy (unlist)
+* `transpose()`: transposes levels hierarchy
+* `compose()`: creates functions by composition
+* `reduce()` / `accumulate()` : apply binary function over elements
 
 
 # Data visualisation
@@ -1465,9 +1508,10 @@ who_long %>%
 <img src="images/rstudio-hex-broom.png" width="100px" style="display: block; margin: auto;" />
 
 * `broom` makes tidy data from models
-* `glance`: model summary
-* `tidy`: information about coefficients
-* `augment`: information about observations
+* 3 main functions:
+    * `glance()`: model summary
+    * `tidy()`: information about coefficients
+    * `augment()`: information about observations
 * support for large number of models (`lm`, `glm`, `lme4`, `gam`, `anova`, `nls`, `kmeans`, `arima`...)
 
 
@@ -1520,8 +1564,8 @@ And for bioinformatics? Use `biobroom`! (https://www.bioconductor.org/packages/r
 ## modelr
 
 * package `modelr` to work with models and data.frame
-* `add_predictions`
-* `add_residuals`
+* `add_predictions()`
+* `add_residuals()`
 * handles partitioning and sampling
 * model quality metrics
 * create grid of points
@@ -1566,7 +1610,7 @@ gap_by_country <- gap_by_country %>% mutate(mod = map(data, ~lm(lifeExp ~ year, 
 
 * models and data are stored together
 
-* now add information about model
+* now add information about models
 
 ```r
 gap_by_country %>% 
@@ -1638,7 +1682,7 @@ gap_by_country %>%
 
 <img src="tidyverse_files/figure-html/nest_plot-2.png" width="600px" style="display: block; margin: auto;" />
 
-# Data type specific packages
+# Type specific packages
 
 ## Factors
 
@@ -1702,7 +1746,7 @@ Levels: b a c
 
 - package `lubridate`
 - enhances base functions for dates and times manipulations
-- `ymd`, `year`, `month`, `day`, `round_date`, `floor_date`
+- `ymd()`, `year()`, `month()`, `day()`, `round_date()`, `floor_date()`
 
 ## A package to rule them all
 
