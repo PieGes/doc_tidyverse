@@ -194,6 +194,7 @@ knitr::include_graphics("images/RStudio_Hex_dplyr.png")
 
 - package `dplyr`
 - implements grammar of data manipulation
+- works on various data sources (in-memory, databases, Spark)
 
 Single table verbs: 
 
@@ -213,7 +214,6 @@ Two-table verbs:
 ### Single table verbs
 
 #### Sort table rows with arrange
-
 
 Sort rows according to **one variable**.
 

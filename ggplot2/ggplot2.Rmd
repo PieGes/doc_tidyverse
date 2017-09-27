@@ -1,12 +1,12 @@
 ---
 title: "ggplot2"
 author: "Pierre Gestraud"
-date: "4 octobre 2016"
+date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document: default
-  html_notebook: default
   github_document: default
+  html_notebook: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -286,6 +286,13 @@ ggplot(mpg, aes(x = class, y = hwy)) + geom_boxplot() + geom_jitter(width = 0.5,
 ```
 
 
+### Variable modification in call
+
+```{r}
+ggplot(mpg, aes(x = class, y = displ^2)) + geom_boxplot()
+```
+
+
 ### Scales
 
 Scales are mainly controlled by `scale_*` functions. Their names are structured: *scale_'aestetic name'_'type'*
@@ -405,7 +412,7 @@ g + my_theme()
 ```
 
 
-### Faceting
+### Facetting
 
 Facetting allows to display plot separately according to discrete variables
 
@@ -427,11 +434,18 @@ ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class, scales 
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~class, scales = "free_x")
 ```
 
-All layers are faceted
+All layers are facetted
 
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + geom_smooth() + facet_grid(~drv)
 ```
+
+We can also create new variables on the fly for facetting
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point() + facet_wrap(~cut_interval(cty, 4))
+```
+
 
 
 ### add supplementary information on plot
