@@ -1,5 +1,5 @@
 ---
-title: "tidyverse"
+title: "Tidy data analysis"
 author: "Pierre Gestraud"
 date: "`r Sys.Date()`"
 output:
@@ -11,7 +11,6 @@ output:
     toc: yes
     toc_float: yes
   github_document: default
-  html_notebook: default
   pdf_document:
     number_sections: yes
     toc: yes
@@ -32,6 +31,11 @@ require(forcats)
 require(gapminder)
 ```
 
+# Data science workflow
+
+```{r workflow, echo = FALSE}
+knitr::include_graphics("images/data-science.png")
+```
 
 # tidyverse
 
@@ -71,13 +75,6 @@ Functions should be **consistent** and  **readable**
     * all `stringr` functions take string as first argument
 - Runs fast (use `RCPP`)    
 - A function should either compute something or do something. It should never do both.
-    
-    
-# Data science workflow
-
-```{r workflow, echo = FALSE}
-knitr::include_graphics("images/data-science.png")
-```
 
 # Data wrangling
 
@@ -257,6 +254,13 @@ Or predicates are separated by `|`.
 ```{r filter_3}
 filter(who_long, country == "Palau" | cases == 230)
 ```
+
+To filter with regexp use `grepl()`
+
+```{r grepl}
+filter(who_long, grepl("^F", country))
+```
+
 
 Usefull filter functions:
 

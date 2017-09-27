@@ -1,9 +1,12 @@
-# tidyverse
+# Tidy data analysis
 Pierre Gestraud  
 `r Sys.Date()`  
 
 
 
+# Data science workflow
+
+<img src="images/data-science.png" width="600px" style="display: block; margin: auto;" />
 
 # tidyverse
 
@@ -41,11 +44,6 @@ Functions should be **consistent** and  **readable**
     * all `stringr` functions take string as first argument
 - Runs fast (use `RCPP`)    
 - A function should either compute something or do something. It should never do both.
-    
-    
-# Data science workflow
-
-<img src="images/data-science.png" width="600px" style="display: block; margin: auto;" />
 
 # Data wrangling
 
@@ -344,6 +342,7 @@ who_long <- separate(who_long, col = group, sep = "_", into = c("new", "diag", "
 
 - package `dplyr`
 - implements grammar of data manipulation
+- works on various data sources (in-memory, databases, Spark)
 
 Single table verbs: 
 
@@ -363,7 +362,6 @@ Two-table verbs:
 ### Single table verbs
 
 #### Sort table rows with arrange
-
 
 Sort rows according to **one variable**.
 
@@ -538,6 +536,31 @@ filter(who_long, country == "Palau" | cases == 230)
 10   Palau    PW   PLW  2009 new_sp_m014   new    sp    m014     0
 # ... with 401 more rows
 ```
+
+To filter with regexp use `grepl()`
+
+
+```r
+filter(who_long, grepl("^F", country))
+```
+
+```
+# A tibble: 1,798 x 9
+   country  iso2  iso3  year       group   new  diag patient cases
+     <chr> <chr> <chr> <int>       <chr> <chr> <chr>   <chr> <int>
+ 1    Fiji    FJ   FJI  1994 new_sp_m014   new    sp    m014     2
+ 2    Fiji    FJ   FJI  1995 new_sp_m014   new    sp    m014     0
+ 3    Fiji    FJ   FJI  1996 new_sp_m014   new    sp    m014     1
+ 4    Fiji    FJ   FJI  1997 new_sp_m014   new    sp    m014     1
+ 5    Fiji    FJ   FJI  1998 new_sp_m014   new    sp    m014     0
+ 6    Fiji    FJ   FJI  1999 new_sp_m014   new    sp    m014     1
+ 7    Fiji    FJ   FJI  2000 new_sp_m014   new    sp    m014     0
+ 8    Fiji    FJ   FJI  2001 new_sp_m014   new    sp    m014     0
+ 9    Fiji    FJ   FJI  2002 new_sp_m014   new    sp    m014     1
+10    Fiji    FJ   FJI  2003 new_sp_m014   new    sp    m014     2
+# ... with 1,788 more rows
+```
+
 
 Usefull filter functions:
 
