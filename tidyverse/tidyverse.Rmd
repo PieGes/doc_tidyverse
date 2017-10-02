@@ -310,14 +310,7 @@ select(who_long, matches("r$")) ## regexp
 
 
 
-```{r select_if}
-select_if(who_long, is.numeric)
-```
 
-
-```{r rename_all}
-rename_all(who_long, toupper) ## rename all variables to upper case
-```
 
 
 #### Create new columns
@@ -431,7 +424,6 @@ Columns selection can be based on predicates.
 df$g <- sample(letters[1:5], 100, replace = TRUE)
 summarise_if(df, is.numeric, mean)
 ```
-
 
 Scoped grouping
 
@@ -749,7 +741,7 @@ knitr::include_graphics("images/RStudio_Hex_lubridate.png")
 - enhances base functions for dates and times manipulations
 - `ymd()`, `year()`, `month()`, `day()`, `round_date()`, `floor_date()`
 
-## A package to rule them all
+# A package to rule them all
 
 ```{r tidyverse_hex, out.width = "100px", fig.align = "center", echo = FALSE}
 knitr::include_graphics("images/rstudio-hex-tidyverse.png")
@@ -764,4 +756,5 @@ knitr::include_graphics("images/rstudio-hex-tidyverse.png")
 - https://www.tidyverse.org/
 - R4ds (http://r4ds.had.co.nz/)
 - rstudio cheatsheets
+- https://community.rstudio.com/c/tidyverse
 

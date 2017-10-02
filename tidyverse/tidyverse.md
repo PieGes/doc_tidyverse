@@ -796,49 +796,6 @@ select(who_long, matches("r$")) ## regexp
 
 
 
-```r
-select_if(who_long, is.numeric)
-```
-
-```
-# A tibble: 76,046 x 2
-    year cases
- * <int> <int>
- 1  1997     0
- 2  1998    30
- 3  1999     8
- 4  2000    52
- 5  2001   129
- 6  2002    90
- 7  2003   127
- 8  2004   139
- 9  2005   151
-10  2006   193
-# ... with 76,036 more rows
-```
-
-
-
-```r
-rename_all(who_long, toupper) ## rename all variables to upper case
-```
-
-```
-# A tibble: 76,046 x 9
-       COUNTRY  ISO2  ISO3  YEAR       GROUP   NEW  DIAG PATIENT CASES
- *       <chr> <chr> <chr> <int>       <chr> <chr> <chr>   <chr> <int>
- 1 Afghanistan    AF   AFG  1997 new_sp_m014   new    sp    m014     0
- 2 Afghanistan    AF   AFG  1998 new_sp_m014   new    sp    m014    30
- 3 Afghanistan    AF   AFG  1999 new_sp_m014   new    sp    m014     8
- 4 Afghanistan    AF   AFG  2000 new_sp_m014   new    sp    m014    52
- 5 Afghanistan    AF   AFG  2001 new_sp_m014   new    sp    m014   129
- 6 Afghanistan    AF   AFG  2002 new_sp_m014   new    sp    m014    90
- 7 Afghanistan    AF   AFG  2003 new_sp_m014   new    sp    m014   127
- 8 Afghanistan    AF   AFG  2004 new_sp_m014   new    sp    m014   139
- 9 Afghanistan    AF   AFG  2005 new_sp_m014   new    sp    m014   151
-10 Afghanistan    AF   AFG  2006 new_sp_m014   new    sp    m014   193
-# ... with 76,036 more rows
-```
 
 
 #### Create new columns
@@ -1131,7 +1088,6 @@ summarise_if(df, is.numeric, mean)
       <dbl>     <dbl>    <dbl>
 1 0.5176257 0.4300524 0.521798
 ```
-
 
 Scoped grouping
 
@@ -1771,7 +1727,7 @@ Levels: b a c
 - enhances base functions for dates and times manipulations
 - `ymd()`, `year()`, `month()`, `day()`, `round_date()`, `floor_date()`
 
-## A package to rule them all
+# A package to rule them all
 
 <img src="images/rstudio-hex-tidyverse.png" width="100px" style="display: block; margin: auto;" />
 
@@ -1784,4 +1740,5 @@ Levels: b a c
 - https://www.tidyverse.org/
 - R4ds (http://r4ds.had.co.nz/)
 - rstudio cheatsheets
+- https://community.rstudio.com/c/tidyverse
 
