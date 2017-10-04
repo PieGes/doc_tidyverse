@@ -92,7 +92,7 @@ knitr::include_graphics("images/RStudio_Hex_readr.png")
 * `read_table()`, `read_csv()`, `read_delim()`...
 * compared to base functions, `readr` is much faster
 * characters are never automatically converted to factors (i.e. no more stringsAsFactors = FALSE!)
-* column names are left
+* column names are unchanged
 * row names are never set
 * create tibbles
 
@@ -100,13 +100,13 @@ knitr::include_graphics("images/RStudio_Hex_readr.png")
 ```{r temp_file}
 ## write temporary file
 tmp <- tempfile()
-invisible(replicate(100,write.table(gapminder, file = tmp, append = TRUE, sep="\t", col.names = FALSE)))
+invisible(replicate(100,write.table(gapminder, file = tmp, append = TRUE, sep = "\t", col.names = FALSE)))
 
 ```
 
 ```{r comp_read}
 require(microbenchmark)
-microbenchmark(base = read.table(tmp, sep="\t"), readr =  suppressMessages(read_delim(tmp, delim="\t", progress = FALSE)))
+microbenchmark(base = read.table(tmp, sep = "\t"), readr =  suppressMessages(read_delim(tmp, delim = "\t", progress = FALSE)))
 ```
 
 
@@ -580,7 +580,7 @@ imap_chr(l1, ~paste(.y, length(.x)))
 * `transpose()`: transposes levels hierarchy
 * `compose()`: creates functions by composition
 * `reduce()` / `accumulate()` : apply binary function over elements
-
+* `possibly()`, `safely()`: control errors
 
 # Data visualisation
 

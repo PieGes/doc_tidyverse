@@ -57,7 +57,7 @@ Functions should be **consistent** and  **readable**
 * `read_table()`, `read_csv()`, `read_delim()`...
 * compared to base functions, `readr` is much faster
 * characters are never automatically converted to factors (i.e. no more stringsAsFactors = FALSE!)
-* column names are left
+* column names are unchanged
 * row names are never set
 * create tibbles
 
@@ -66,7 +66,7 @@ Functions should be **consistent** and  **readable**
 ```r
 ## write temporary file
 tmp <- tempfile()
-invisible(replicate(100,write.table(gapminder, file = tmp, append = TRUE, sep="\t", col.names = FALSE)))
+invisible(replicate(100,write.table(gapminder, file = tmp, append = TRUE, sep = "\t", col.names = FALSE)))
 ```
 
 
@@ -79,14 +79,14 @@ Loading required package: microbenchmark
 ```
 
 ```r
-microbenchmark(base = read.table(tmp, sep="\t"), readr =  suppressMessages(read_delim(tmp, delim="\t", progress = FALSE)))
+microbenchmark(base = read.table(tmp, sep = "\t"), readr =  suppressMessages(read_delim(tmp, delim = "\t", progress = FALSE)))
 ```
 
 ```
 Unit: milliseconds
   expr      min       lq     mean   median       uq      max neval cld
-  base 545.5896 613.6904 633.1348 622.5000 656.1659 711.6905   100   b
- readr 159.1569 166.2486 201.6124 218.1589 226.7426 398.5895   100  a 
+  base 538.9014 603.7063 633.1966 623.5526 658.7054 812.2097   100   b
+ readr 161.9379 176.1852 207.8669 215.9334 224.1563 387.0740   100  a 
 ```
 
 
@@ -1014,9 +1014,9 @@ summarise_all(df, mean)
 
 ```
 # A tibble: 1 x 3
-         x1        x2        y
-      <dbl>     <dbl>    <dbl>
-1 0.5176257 0.4300524 0.521798
+         x1        x2         y
+      <dbl>     <dbl>     <dbl>
+1 0.5036026 0.4712574 0.5296576
 ```
 
 To apply multiple functions, use `funs()`.
@@ -1028,9 +1028,9 @@ summarise_all(df, funs(mean, median, var))
 
 ```
 # A tibble: 1 x 9
-    x1_mean   x2_mean   y_mean x1_median x2_median  y_median     x1_var
-      <dbl>     <dbl>    <dbl>     <dbl>     <dbl>     <dbl>      <dbl>
-1 0.5176257 0.4300524 0.521798 0.5448432 0.4088083 0.5319039 0.08349438
+    x1_mean   x2_mean    y_mean x1_median x2_median  y_median     x1_var
+      <dbl>     <dbl>     <dbl>     <dbl>     <dbl>     <dbl>      <dbl>
+1 0.5036026 0.4712574 0.5296576 0.5118164 0.4726853 0.5383212 0.07077306
 # ... with 2 more variables: x2_var <dbl>, y_var <dbl>
 ```
 
@@ -1043,9 +1043,9 @@ summarise_all(df, funs(m = mean, med = median))
 
 ```
 # A tibble: 1 x 6
-       x1_m      x2_m      y_m    x1_med    x2_med     y_med
-      <dbl>     <dbl>    <dbl>     <dbl>     <dbl>     <dbl>
-1 0.5176257 0.4300524 0.521798 0.5448432 0.4088083 0.5319039
+       x1_m      x2_m       y_m    x1_med    x2_med     y_med
+      <dbl>     <dbl>     <dbl>     <dbl>     <dbl>     <dbl>
+1 0.5036026 0.4712574 0.5296576 0.5118164 0.4726853 0.5383212
 ```
 
 
@@ -1060,7 +1060,7 @@ summarise_at(df, vars(-y), mean)
 # A tibble: 1 x 2
          x1        x2
       <dbl>     <dbl>
-1 0.5176257 0.4300524
+1 0.5036026 0.4712574
 ```
 
 ```r
@@ -1071,7 +1071,7 @@ summarise_at(df, vars(starts_with("x")), mean)
 # A tibble: 1 x 2
          x1        x2
       <dbl>     <dbl>
-1 0.5176257 0.4300524
+1 0.5036026 0.4712574
 ```
 
 Columns selection can be based on predicates.
@@ -1084,9 +1084,9 @@ summarise_if(df, is.numeric, mean)
 
 ```
 # A tibble: 1 x 3
-         x1        x2        y
-      <dbl>     <dbl>    <dbl>
-1 0.5176257 0.4300524 0.521798
+         x1        x2         y
+      <dbl>     <dbl>     <dbl>
+1 0.5036026 0.4712574 0.5296576
 ```
 
 Scoped grouping
@@ -1394,8 +1394,8 @@ map2_dbl(v1, v2, ~ .x+.y)
 ```
 
 ```
- [1]  0.6570308 -1.1731255 -0.8846756  4.5648536  2.6786351 -1.2989952
- [7]  0.6204109 -0.2673749 -0.9905138  1.2333528
+ [1]  0.8709113 -0.8307265  1.6963458  0.0261250 -1.4383235 -2.1628447
+ [7] -0.7543300 -0.3093979 -1.4565250  1.2865918
 ```
 
 Several vectors
@@ -1408,34 +1408,34 @@ pmap(list(v1, v2, v3), sum)
 
 ```
 [[1]]
-[1] 1.307388
+[1] 0.4260182
 
 [[2]]
-[1] -1.044615
+[1] -1.6867
 
 [[3]]
-[1] -0.521356
+[1] -0.4329762
 
 [[4]]
-[1] 3.527389
+[1] 0.04460542
 
 [[5]]
-[1] 3.87005
+[1] -0.5680802
 
 [[6]]
-[1] -1.795097
+[1] -2.836946
 
 [[7]]
-[1] 0.6681682
+[1] -1.059189
 
 [[8]]
-[1] 0.6814526
+[1] 1.136461
 
 [[9]]
-[1] -1.252203
+[1] -3.061627
 
 [[10]]
-[1] 1.526705
+[1] 1.390735
 ```
 
 
@@ -1459,7 +1459,7 @@ imap_chr(l1, ~paste(.y, length(.x)))
 * `transpose()`: transposes levels hierarchy
 * `compose()`: creates functions by composition
 * `reduce()` / `accumulate()` : apply binary function over elements
-
+* `possibly()`, `safely()`: control errors
 
 # Data visualisation
 

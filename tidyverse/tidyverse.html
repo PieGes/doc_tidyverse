@@ -11,7 +11,7 @@
 
 <meta name="author" content="Pierre Gestraud" />
 
-<meta name="date" content="2017-10-02" />
+<meta name="date" content="2017-10-04" />
 
 <title>Tidy data analysis</title>
 
@@ -245,7 +245,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Tidy data analysis</h1>
 <h4 class="author"><em>Pierre Gestraud</em></h4>
-<h4 class="date"><em>2017-10-02</em></h4>
+<h4 class="date"><em>2017-10-04</em></h4>
 
 </div>
 
@@ -307,20 +307,20 @@ div.tocify {
 <li><code>read_table()</code>, <code>read_csv()</code>, <code>read_delim()</code>…</li>
 <li>compared to base functions, <code>readr</code> is much faster</li>
 <li>characters are never automatically converted to factors (i.e. no more stringsAsFactors = FALSE!)</li>
-<li>column names are left</li>
+<li>column names are unchanged</li>
 <li>row names are never set</li>
 <li>create tibbles</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## write temporary file
 tmp &lt;-<span class="st"> </span><span class="kw">tempfile</span>()
-<span class="kw">invisible</span>(<span class="kw">replicate</span>(<span class="dv">100</span>,<span class="kw">write.table</span>(gapminder, <span class="dt">file =</span> tmp, <span class="dt">append =</span> <span class="ot">TRUE</span>, <span class="dt">sep=</span><span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>, <span class="dt">col.names =</span> <span class="ot">FALSE</span>)))</code></pre></div>
+<span class="kw">invisible</span>(<span class="kw">replicate</span>(<span class="dv">100</span>,<span class="kw">write.table</span>(gapminder, <span class="dt">file =</span> tmp, <span class="dt">append =</span> <span class="ot">TRUE</span>, <span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>, <span class="dt">col.names =</span> <span class="ot">FALSE</span>)))</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(microbenchmark)</code></pre></div>
 <pre><code>Loading required package: microbenchmark</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">microbenchmark</span>(<span class="dt">base =</span> <span class="kw">read.table</span>(tmp, <span class="dt">sep=</span><span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>), <span class="dt">readr =</span>  <span class="kw">suppressMessages</span>(<span class="kw">read_delim</span>(tmp, <span class="dt">delim=</span><span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>, <span class="dt">progress =</span> <span class="ot">FALSE</span>)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">microbenchmark</span>(<span class="dt">base =</span> <span class="kw">read.table</span>(tmp, <span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>), <span class="dt">readr =</span>  <span class="kw">suppressMessages</span>(<span class="kw">read_delim</span>(tmp, <span class="dt">delim =</span> <span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>, <span class="dt">progress =</span> <span class="ot">FALSE</span>)))</code></pre></div>
 <pre><code>Unit: milliseconds
   expr      min       lq     mean   median       uq      max neval cld
-  base 545.5896 613.6904 633.1348 622.5000 656.1659 711.6905   100   b
- readr 159.1569 166.2486 201.6124 218.1589 226.7426 398.5895   100  a </code></pre>
+  base 538.9014 603.7063 633.1966 623.5526 658.7054 812.2097   100   b
+ readr 161.9379 176.1852 207.8669 215.9334 224.1563 387.0740   100  a </code></pre>
 </div>
 <div id="tibbles" class="section level2">
 <h2><span class="header-section-number">3.2</span> tibbles</h2>
@@ -960,40 +960,40 @@ who_long_by_country</code></pre></div>
 <p>Summarise all variables with <code>summarise_all()</code></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summarise_all</span>(df, mean)</code></pre></div>
 <pre><code># A tibble: 1 x 3
-         x1        x2        y
-      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 0.5176257 0.4300524 0.521798</code></pre>
+         x1        x2         y
+      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1 0.5036026 0.4712574 0.5296576</code></pre>
 <p>To apply multiple functions, use <code>funs()</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summarise_all</span>(df, <span class="kw">funs</span>(mean, median, var))</code></pre></div>
 <pre><code># A tibble: 1 x 9
-    x1_mean   x2_mean   y_mean x1_median x2_median  y_median     x1_var
-      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
-1 0.5176257 0.4300524 0.521798 0.5448432 0.4088083 0.5319039 0.08349438
+    x1_mean   x2_mean    y_mean x1_median x2_median  y_median     x1_var
+      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 0.5036026 0.4712574 0.5296576 0.5118164 0.4726853 0.5383212 0.07077306
 # ... with 2 more variables: x2_var &lt;dbl&gt;, y_var &lt;dbl&gt;</code></pre>
 <p>Arguments of <code>funs()</code> can have names.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summarise_all</span>(df, <span class="kw">funs</span>(<span class="dt">m =</span> mean, <span class="dt">med =</span> median))</code></pre></div>
 <pre><code># A tibble: 1 x 6
-       x1_m      x2_m      y_m    x1_med    x2_med     y_med
-      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-1 0.5176257 0.4300524 0.521798 0.5448432 0.4088083 0.5319039</code></pre>
+       x1_m      x2_m       y_m    x1_med    x2_med     y_med
+      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1 0.5036026 0.4712574 0.5296576 0.5118164 0.4726853 0.5383212</code></pre>
 <p>To operates on specific columns, use <code>summarise_at()</code>. The selection should be wrapped in <code>vars()</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summarise_at</span>(df, <span class="kw">vars</span>(-y), mean)</code></pre></div>
 <pre><code># A tibble: 1 x 2
          x1        x2
       &lt;dbl&gt;     &lt;dbl&gt;
-1 0.5176257 0.4300524</code></pre>
+1 0.5036026 0.4712574</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summarise_at</span>(df, <span class="kw">vars</span>(<span class="kw">starts_with</span>(<span class="st">&quot;x&quot;</span>)), mean)</code></pre></div>
 <pre><code># A tibble: 1 x 2
          x1        x2
       &lt;dbl&gt;     &lt;dbl&gt;
-1 0.5176257 0.4300524</code></pre>
+1 0.5036026 0.4712574</code></pre>
 <p>Columns selection can be based on predicates.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df$g &lt;-<span class="st"> </span><span class="kw">sample</span>(letters[<span class="dv">1</span>:<span class="dv">5</span>], <span class="dv">100</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
 <span class="kw">summarise_if</span>(df, is.numeric, mean)</code></pre></div>
 <pre><code># A tibble: 1 x 3
-         x1        x2        y
-      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 0.5176257 0.4300524 0.521798</code></pre>
+         x1        x2         y
+      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1 0.5036026 0.4712574 0.5296576</code></pre>
 <p>Scoped grouping</p>
 <ul>
 <li><code>group_by_all()</code></li>
@@ -1213,40 +1213,40 @@ iris_list %&gt;%<span class="st"> </span>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v1 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">10</span>)
 v2 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">10</span>)
 <span class="kw">map2_dbl</span>(v1, v2, ~<span class="st"> </span>.x+.y)</code></pre></div>
-<pre><code> [1]  0.6570308 -1.1731255 -0.8846756  4.5648536  2.6786351 -1.2989952
- [7]  0.6204109 -0.2673749 -0.9905138  1.2333528</code></pre>
+<pre><code> [1]  0.8709113 -0.8307265  1.6963458  0.0261250 -1.4383235 -2.1628447
+ [7] -0.7543300 -0.3093979 -1.4565250  1.2865918</code></pre>
 <p>Several vectors</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v3 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">10</span>)
 <span class="kw">pmap</span>(<span class="kw">list</span>(v1, v2, v3), sum)</code></pre></div>
 <pre><code>[[1]]
-[1] 1.307388
+[1] 0.4260182
 
 [[2]]
-[1] -1.044615
+[1] -1.6867
 
 [[3]]
-[1] -0.521356
+[1] -0.4329762
 
 [[4]]
-[1] 3.527389
+[1] 0.04460542
 
 [[5]]
-[1] 3.87005
+[1] -0.5680802
 
 [[6]]
-[1] -1.795097
+[1] -2.836946
 
 [[7]]
-[1] 0.6681682
+[1] -1.059189
 
 [[8]]
-[1] 0.6814526
+[1] 1.136461
 
 [[9]]
-[1] -1.252203
+[1] -3.061627
 
 [[10]]
-[1] 1.526705</code></pre>
+[1] 1.390735</code></pre>
 <p>Iterates over a vector and its names with <code>imap()</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">l1 &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">a =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">b =</span> <span class="dv">3</span>, <span class="dt">c =</span> <span class="kw">c</span>(<span class="st">&quot;aa&quot;</span>, <span class="st">&quot;bb&quot;</span>, <span class="st">&quot;cc&quot;</span>))
 <span class="kw">imap_chr</span>(l1, ~<span class="kw">paste</span>(.y, <span class="kw">length</span>(.x)))</code></pre></div>
@@ -1261,6 +1261,7 @@ v2 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">
 <li><code>transpose()</code>: transposes levels hierarchy</li>
 <li><code>compose()</code>: creates functions by composition</li>
 <li><code>reduce()</code> / <code>accumulate()</code> : apply binary function over elements</li>
+<li><code>possibly()</code>, <code>safely()</code>: control errors</li>
 </ul>
 </div>
 </div>
